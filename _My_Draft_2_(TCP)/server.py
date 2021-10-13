@@ -3,12 +3,11 @@
  
  Questions: 
  1) I am getting this error on longer files that I want to convert: OSError: [Errno 9] Bad file descriptor
-    I had issues with longer files as well as single line files
+    I had issues with longer files as well as single line files (doesn't look like size)
+    Does it have to do with timeout not being set?
  '''
 
 import socket
-import sys # WILL NEED TO GET RID OF THIS LATER
-
 
 jakeServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 jakeServer.bind((socket.gethostname(), 12000))
@@ -19,6 +18,7 @@ print("The server is ready to receive")
 # buffer set to 5
 jakeServer.listen(5)
 
+
 while True:
     clientSocket, address = jakeServer.accept()
     print(f"Connection from {address} has been established.")
@@ -26,7 +26,9 @@ while True:
     #---
 
     uncensoredPhrase = clientSocket.recv(2048).decode()
+    #clientSocket.close()
     print(f"the uncensored phrase is {uncensoredPhrase}")
+
 
     #Creating the data to send back to client
     toClient = f"THE RETURN PHRASE IS {uncensoredPhrase}"

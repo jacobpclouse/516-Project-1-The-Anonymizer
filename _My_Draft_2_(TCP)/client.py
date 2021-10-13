@@ -3,13 +3,12 @@ This was inspired by https://pythonprogramming.net/sockets-tutorial-python-3/
 
 /media/jake/WDC 500GB/_Downloads/Downloads/SCP-6668
 
-/media/jake/WDC 500GB/HOW TO STUDY.txt
+/media/jake/WDC 500GB/HOW TO STUDY
 
 /media/jake/WDC 500GB/ICSI 516/Project 1/Code Project 1/client server draft 1/Test_Files/UncensoredText/uncensored.txt
 '''
 
 import socket
-import sys # WILL NEED TO GET RID OF THIS LATER
 
 jakeClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 jakeClient.connect((socket.gethostname(), 12000))
