@@ -20,36 +20,49 @@ jakeServer.listen(5)
 
 
 while True:
-   clientSocket, address = jakeServer.accept()
-   print(f"Connection from {address} has been established.")
+    clientSocket, clientAddress = jakeServer.accept()
+    print(f"Connection from {clientAddress} has been established.")
 
-   #---
-   # Accepting String that needs to be censored from client
-   serverUncensoredPhrase = clientSocket.recv(2048).decode()
-   print(f"the uncensored phrase is {serverUncensoredPhrase}")
+    # ---
+    # Accepting String that needs to be censored from client
+    serverNeedToCensor = clientSocket.recv(2048).decode()
+    print(f"the uncensored phrase is {serverNeedToCensor}")
+
+    # ---
+    # Accepting the Top Secret Word to censor from client
+    serverSecretPhrase = clientSocket.recv(2048).decode()
+    print(f"the uncensored phrase is {serverSecretPhrase}")
+
+    # ---
+    # Accepting the replacement character to censor from client
+    serverReplacementChar = clientSocket.recv(2048).decode()
+    print(f"the uncensored phrase is {serverReplacementChar}")
+
+    # ---
+    # Displaying output
+    print(
+        f"RECIEVED {serverNeedToCensor, serverSecretPhrase, serverReplacementChar} FROM {clientAddress}")
+
+   # --
+
+    # Gets length of string and creates the character to replace it with
+    replacementString = ''
+
+    for letters in serverSecretPhrase:
+        replacementString += serverReplacementChar
+
+    print(f"The Replacement string will be {replacementString}")
+
+# --
+
+    # Doing find and replace
+    # from https://www.geeksforgeeks.org/python-string-replace/
+    censoredOutput = serverNeedToCensor.replace(
+        serverSecretPhrase, replacementString)
+    # print(censoredOutput)
 
 
-   #---
-   # Accepting the Top Secret Word to censor from client
-   serverTopSecretPhrase = clientSocket.recv(2048).decode()
-   print(f"the uncensored phrase is {serverTopSecretPhrase}")
+    # Creating the data to send back to client
+    clientSocket.send(censoredOutput.encode())
 
-
-   #---
-   # Accepting the replacement character to censor from client
-   serverReplacementChar = clientSocket.recv(2048).decode()
-   print(f"the uncensored phrase is {serverReplacementChar}")
-
-
-   #---
-
-   
-
-   #Creating the data to send back to client
-   toClient = f"THE RETURN PHRASE IS {uncensoredPhrase}"
-   clientSocket.send(toClient.encode())
-    
-   #---
-
-
-
+    # ---

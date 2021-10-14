@@ -51,14 +51,19 @@ jakeClient.send(replaceChar.encode())
 
 
 # Getting censored message back from server & printing out
-censoredOutput = jakeClient.recv(2048)
-print(f'From Server: {censoredOutput.decode()}')
+censoredMessage = jakeClient.recv(2048)
+print(f'From Server: {censoredMessage.decode()}')
 
 
 #Do I need to print the output to a file on the server side or on the client side?
 #ie: am I just sending a sting back or an entire file?
 
 #---
+
+# printing to standard out
+# from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
+with open('./TCP_Censored_Output/TopSecretTCP.txt', 'w') as f:
+    print(censoredMessage, file=f)
 
 
 jakeClient.close()
