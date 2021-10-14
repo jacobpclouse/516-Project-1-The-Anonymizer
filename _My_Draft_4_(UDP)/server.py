@@ -44,8 +44,26 @@ while True:
 
     # Discovering the length of the Top secret phrase
     lengthOfCensorPhrase = len(serverNeedToCensor)
+    print(f"RECIEVED {serverNeedToCensor, serverSecretPhrase, serverReplacementChar} FROM {clientAddress}")
+    print(f"The Top secret phrase: {serverSecretPhrase} has {lengthOfCensorPhrase} characters")
+#--
 
-    print(f"RECIEVED {serverSecretPhrase, serverNeedToCensor, serverReplacementChar} FROM {clientAddress}")
+    #Gets length of string and creates the character to replace it with
+    replacementString = ''
+
+    for letters in serverSecretPhrase:
+        replacementString += serverReplacementChar
+
+    print(f"The Replacement string will be {replacementString}")
+
+#--
+
+    # Doing find and replace
+    # from https://www.geeksforgeeks.org/python-string-replace/
+    censoredOutput = serverNeedToCensor.replace(serverSecretPhrase, replacementString)
+    # print(censoredOutput)
 
 
-    jakeServerUDP.sendto(serverSecretPhrase.encode(), clientAddress)
+
+    jakeServerUDP.sendto(censoredOutput.encode(), clientAddress)
+   
