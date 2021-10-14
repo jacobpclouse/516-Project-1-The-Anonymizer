@@ -26,7 +26,7 @@ print(wholeFileToString)
 # Finding Out what the censored phrase is from user & phrase length
 # from https://www.geeksforgeeks.org/python-string-length-len/
 censorPhrase = input("What phrase is classified: ") 
-lengthOfCensorPhrase = len(censorPhrase) 
+#lengthOfCensorPhrase = len(censorPhrase) 
 
 # Finding out what the replacement character is
 replaceChar = input("What do you want to replace it with: ")
