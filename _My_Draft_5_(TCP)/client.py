@@ -26,28 +26,29 @@ wholeFileToString = textToChange.read()
 textToChange.close()
 print(wholeFileToString)
 
-
-# Finding out the Top Secret Word
-censorPhrase = input("What phrase is classified: ")
-
-# Getting length of Top Secret Word
-# from https://www.geeksforgeeks.org/python-string-length-len/
-#lengthOfCensorPhrase = len(censorPhrase)
-
-# Designating the replacement character (ie: 'X')
-replaceChar = input("What do you want to replace it with: ")
-
-
 # Send out text to censtor to server
 jakeClient.send(wholeFileToString.encode())
 
+
+
+
+# Finding out the Top Secret Word
+censorPhrase = input("What phrase is classified: ")
 
 # Send out the Top Secret Word to server
 jakeClient.send(censorPhrase.encode())
 
 
+
+
+
+# Designating the replacement character (ie: 'X')
+replaceChar = input("What do you want to replace it with: ")
+
 # Send out the replacement character to server
 jakeClient.send(replaceChar.encode())
+
+
 
 
 # Getting censored message back from server & printing out

@@ -26,17 +26,17 @@ while True:
     # ---
     # Accepting String that needs to be censored from client
     serverNeedToCensor = clientSocket.recv(2048).decode()
-    print(f"the uncensored phrase is {serverNeedToCensor}")
+    print(f"String that needs to be censored is {serverNeedToCensor}")
 
     # ---
     # Accepting the Top Secret Word to censor from client
     serverSecretPhrase = clientSocket.recv(2048).decode()
-    print(f"the uncensored phrase is {serverSecretPhrase}")
+    print(f"Top Secret Word to censor is {serverSecretPhrase}")
 
     # ---
     # Accepting the replacement character to censor from client
     serverReplacementChar = clientSocket.recv(2048).decode()
-    print(f"the uncensored phrase is {serverReplacementChar}")
+    print(f"the replacement character is {serverReplacementChar}")
 
     # ---
     # Displaying output
