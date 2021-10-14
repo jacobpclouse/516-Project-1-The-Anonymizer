@@ -42,7 +42,8 @@ while True:
 #--
 
 
-    # Discovering the length of the Top secret phrase
+    # Discovering the length of the Top secret phrase length
+    # from https://www.geeksforgeeks.org/python-string-length-len/
     lengthOfCensorPhrase = len(serverNeedToCensor)
 
     print(f"RECIEVED {serverSecretPhrase, serverNeedToCensor, serverReplacementChar} FROM {clientAddress}")
