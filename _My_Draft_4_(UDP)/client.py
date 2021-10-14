@@ -10,7 +10,7 @@ jakeClientUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 #---
 # Getting File Path Location
-pathName = input("List the path name for the import file WITHOUT QUOTES")
+pathName = input("List the path name for the import file WITHOUT QUOTES: ")
 print(pathName)
 
 
@@ -37,12 +37,27 @@ replaceChar = input("What do you want to replace it with: ")
 jakeClientUDP.sendto(wholeFileToString.encode(),(socket.gethostname(), 12001))
 
 
-jakeClientUDP.sendto(wholeFileToString.encode(),(socket.gethostname(), 12001))
+jakeClientUDP.sendto(censorPhrase.encode(),(socket.gethostname(), 12001))
 
 
-# Recieving censored text back & Displaying
+jakeClientUDP.sendto(replaceChar.encode(),(socket.gethostname(), 12001))
+
+
+
+# Recieving censored text back & saving to file
 censoredMessage, serverAddress = jakeClientUDP.recvfrom(2048)
+
+# printing to standard out
+# from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
+with open('./UDP_Censored_Output/TopSecretUDP.txt', 'w') as f:
+    print(censoredMessage, file=f)
+
+
 print(censoredMessage.decode())
+
+
+
+
 
 jakeClientUDP.close()
 

@@ -26,7 +26,6 @@ while True:
     #---
 
     uncensoredPhrase = clientSocket.recv(2048).decode()
-    #clientSocket.close()
     print(f"the uncensored phrase is {uncensoredPhrase}")
 
 

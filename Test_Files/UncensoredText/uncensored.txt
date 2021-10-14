@@ -1,1 +1,5 @@
 You should be able to read the full statement.
+Again, you should be able to read the full statement.
+
+I am worried: how do we address capital letters in the target word?
+(ie: you vs You)
