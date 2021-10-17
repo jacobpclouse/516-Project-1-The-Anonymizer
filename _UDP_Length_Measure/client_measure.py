@@ -27,7 +27,9 @@ needToGetLengthOf = input("Give me some text: ")
 # getting length of Sting
 # from https://www.geeksforgeeks.org/python-string-length-len/
 actualLength = str(len(needToGetLengthOf))
+print(f"The length of the message is: {actualLength}")
 print(f"The message to be sent is: {needToGetLengthOf}")
+
 
 # Sending Length
 jakeClientUDP.sendto(actualLength.encode(),(socket.gethostname(), 12002))
@@ -57,6 +59,11 @@ serverMessageSentBack, serverAddress = jakeClientUDP.recvfrom(2048)
 
 # Saving server message length to variable
 clientRecievedMessage = serverMessageSentBack.decode()
+
+# --
+
+checklength(clientRecievedLength, clientRecievedMessage)
+
 
 # --
 
