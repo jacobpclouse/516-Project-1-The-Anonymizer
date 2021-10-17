@@ -13,18 +13,19 @@ while True:
     sentMessageLength, clientAddress = jakeServerUDP.recvfrom(2048)
 
     # Putting uncensored text into modified variable
+    # In order to use this, will need to convert from string to int
     serverSentMessageLength = sentMessageLength.decode()
 
     # Print out to check
-    print(f"The length of the text sent is {serverSentMessageLength}")
+    print(f"The length of the text sent is {int(serverSentMessageLength)}")
 
     # Doubling size of message to send back
     serverDoubleMessage = input("Send back to user: ")
 
     # Getting length of double message
     # from https://www.geeksforgeeks.org/python-string-length-len/
-    serverLengthDouble = len(serverDoubleMessage)
-    print(f"Double message length is {serverLengthDouble}")
+    serverLengthDouble = str(len(serverDoubleMessage))
+    print(f"Server Message length is {serverLengthDouble}")
 
     # Send back to user
     jakeServerUDP.sendto(serverLengthDouble.encode(), clientAddress)
