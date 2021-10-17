@@ -16,6 +16,8 @@ def checklength(ReportedLength, ActualLength):
     else:
         print("LENGTHS DO NOT MATCH")
     # Might have to use a "Do/While Loop to keep querying for resend if message corrupted"
+
+
 # --
 
 
@@ -25,6 +27,7 @@ needToGetLengthOf = input("Give me some text: ")
 # getting length of Sting
 # from https://www.geeksforgeeks.org/python-string-length-len/
 actualLength = str(len(needToGetLengthOf))
+print(f"The message to be sent is: {needToGetLengthOf}")
 
 # Sending Length
 jakeClientUDP.sendto(actualLength.encode(),(socket.gethostname(), 12002))
@@ -33,12 +36,30 @@ jakeClientUDP.sendto(actualLength.encode(),(socket.gethostname(), 12002))
 # Sending actual text
 jakeClientUDP.sendto(needToGetLengthOf.encode(),(socket.gethostname(), 12002))
 
-# Recieving censored text back
+
+# --
+
+
+# Recieving length of message to client
 # In order to use this, it has to be converted from str to int
 serverLengthSentBack, serverAddress = jakeClientUDP.recvfrom(2048)
 
 # Saving server message length to variable
-clientRecievedMessage = serverLengthSentBack.decode()
+# In order to use this, will need to convert from string to int
+clientRecievedLength = int(serverLengthSentBack.decode())
+
+
+# --
+
+
+# Recieving new message to client
+serverMessageSentBack, serverAddress = jakeClientUDP.recvfrom(2048)
+
+# Saving server message length to variable
+clientRecievedMessage = serverMessageSentBack.decode()
+
+# --
 
 # Print out to check (converts to int as well)
-print(f"The length of the text sent is {int(clientRecievedMessage)}")
+print(f"The text recieved is: {clientRecievedLength}")
+print(f"The length recieved is: {clientRecievedMessage}")

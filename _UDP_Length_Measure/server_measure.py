@@ -54,16 +54,21 @@ while True:
 # --
 
 
-    # Doubling size of message to send back
-    serverDoubleMessage = input("Send back to user: ")
+    # creating message to send back to client
+    serverMessageToUser = input("Send back to user: ")
 
 
 # --
 
-    # Getting length of double message
+    # Getting length of message and converting to str
     # from https://www.geeksforgeeks.org/python-string-length-len/
-    serverLengthDouble = str(len(serverDoubleMessage))
-    print(f"Server Message length is {serverLengthDouble}")
+    serverLengthToClient = str(len(serverMessageToUser))
+    print(f"Server Message length is {serverLengthToClient}")
 
-    # Send back to user
-    jakeServerUDP.sendto(serverLengthDouble.encode(), clientAddress)
+    # Send back Length to user
+    jakeServerUDP.sendto(serverLengthToClient.encode(), clientAddress)
+
+# --
+
+    # Sending actual message client 
+    jakeServerUDP.sendto(serverMessageToUser.encode(), clientAddress)
