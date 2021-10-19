@@ -35,13 +35,11 @@ print(f"The message to be sent is: {needToGetLengthOf}")
 
 
 # Sending Length
-# jakeClientUDP.sendto(actualLength.encode(),(socket.gethostname(), 12002))
 jakeClientUDP.sendto(actualLength.encode(),(socketNum, portNum))
 
 
 
 # Sending actual text
-#jakeClientUDP.sendto(needToGetLengthOf.encode(),(socket.gethostname(), 12002))
 jakeClientUDP.sendto(needToGetLengthOf.encode(),(socketNum, portNum))
 
 # --
