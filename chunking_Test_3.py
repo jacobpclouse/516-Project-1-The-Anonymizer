@@ -5,6 +5,7 @@
 # creating array to append seperate strings to
 # https://www.kite.com/python/answers/how-to-make-an-array-of-strings-in-python
 arrayToSend = []
+chunkBookmark = 0
 
 # Functions: 
 
@@ -66,7 +67,13 @@ print(f"Array Length: {len(arrayToSend)}")
 
 # Loop through Array:
 for chunks in arrayToSend:
-    print(f"Chunk {chunks}")
+    print(f"Chunk: {chunks}")
+    
+    # Store Index in case we need to retransmit
+    # https://stackoverflow.com/questions/176918/finding-the-index-of-an-item-in-a-list
+    chunkBookmark = arrayToSend.index(chunks)
+    print(f"Index: {chunkBookmark}")
 
 # need to figure out a way to let the server know how many chunks it can expect 
 # also need to give it time to operate on those chunks, store them and then send the next chunk
+# perhaps store current element postion in a string so that we know where we are if we have to resend?
