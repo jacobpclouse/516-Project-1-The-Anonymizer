@@ -7,7 +7,7 @@ import socket
 SocketIP = socket.gethostname()
 SocketPortNumber = int(input("Give me a port Number: "))
 
-jakeClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+jakeClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
 jakeClient.connect((SocketIP, SocketPortNumber))
 # ---
 

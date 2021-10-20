@@ -4,10 +4,6 @@ import socket
 keywordToCensor = ''
 textToCensor = ''
 
-counter = 0
-
-piecesOfData = []
-
 SocketIP = socket.gethostname()
 SocketPortNumber = int(input("Give me a port Number: "))
 
@@ -30,19 +26,17 @@ jakeServer.listen(5)
 # I don't know how much data this is going to recieve, how do we do this?
 # can i use an array?
 
-# Moved 'clientSocket, clientAddress = jakeServer.accept()' outside the array and it keeps going through
-clientSocket, clientAddress = jakeServer.accept()
 while True:
-    
+    clientSocket, clientAddress = jakeServer.accept()
     print(f"Connection from {clientAddress} has been established.")
 
-    
-    # get length then do for loop up to length?
+
     incomingData = clientSocket.recv(2048).decode()
     print(f"Message 1 = {incomingData}")
 
     incomingData2 = clientSocket.recv(2048).decode()
     print(f"Message 2 = {incomingData2}")
+
 
 
     # need to clear both of these once data has been sent

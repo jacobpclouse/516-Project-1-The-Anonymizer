@@ -12,7 +12,7 @@ import socket
 SocketIP = socket.gethostname()
 SocketPortNumber = int(input("Give me a port Number: "))
 
-jakeServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+jakeServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
 jakeServer.bind((SocketIP, SocketPortNumber))
 
 
