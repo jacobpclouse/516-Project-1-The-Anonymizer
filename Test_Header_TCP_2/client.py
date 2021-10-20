@@ -1,6 +1,5 @@
 # put /media/jake/WDC 500GB/ICSI 516/Project 1/Code Project 1/client server draft 1/Test_Files/UncensoredText/uncensored.txt
 
-
 # Socket stuff
 import socket
 
@@ -9,6 +8,7 @@ SocketPortNumber = int(input("Give me a port Number: "))
 
 jakeClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
 jakeClient.connect((SocketIP, SocketPortNumber))
+
 
 # -- FROM COMMAND LOOP
 userCommand = ''
@@ -19,48 +19,77 @@ userStringLength = ''
 putMessage = ''
 keyMessage = ''
 
+putMarker = 0 
+keywordMarker = 0
+commandPut = 'put' 
+commandKeyword = 'keyword'
+
 
 while userCommand.lower() != 'quit':
-    # will loop until both have a value
-    #while putMessage == '' or keyMessage == '':
-        
+
+
+# Problems:
+# - I can't break out of the second while loop (with putmarker or keywordmarker)
+# - I Don't recieve anything on the server side! (how do I keep it open? and get a custom number of queries?)
+# - Do I need to have the accpt statement before the while loop?
+
+# will loop until both have a value
+     while (putMarker == 0 or keywordMarker == 0) and userCommand != 'quit':
+
         userCommand = input("What is your command: ")
+        print(f"User Command: {userCommand}")
 
-        userFirst3 = userCommand[0:3].lower()
-        userRemainingCommand = userCommand[4:]
-
-
-
-        if len(userCommand) <= 3:
+        if len(userCommand) <= 2:
             # making sure that the user is giving us correct parameters
-            # need to do more checks to confirm that following characters are valid 
+            # need to do more checks to confirm that following characters are valid
             print("you need to give a valid command")
 
         # Check for 'put' Command
-        elif userFirst3 == 'put':
+        elif (userCommand[:3]).lower() == 'put':
             # ** I am slicing based on order
             # https://www.w3schools.com/python/ref_func_range.asp
-            userFilePath = userRemainingCommand
+
+            print("THIS IS A PUT")
+            userFilePath = userCommand[4:]
 
             textToChange = open(userFilePath)
             wholeFileToString = textToChange.read()
             textToChange.close()
 
-            userStringLength = str(len(wholeFileToString))
-            putMessage = userFirst3 + " " + wholeFileToString
-            
+            userStringLength = f"Len: {str(len(wholeFileToString))}"
+
+
+            # Creating combine string with command and message
+            putMessage = "put " + wholeFileToString
             print(putMessage)
 
-            print("Sending Put Message:")
-            jakeClient.send(putMessage.encode())
+            # changing flag for putmarker (shows we have a putmarker)
+            putMarker = 1
+
+            
 
         # Check for 'key' Command
-        elif userFirst3 == 'key':
-            keyMessage = userCommand
+        elif (userCommand[:7]).lower() == 'keyword':
+            keyTemp = userCommand[8:]
+            print("THIS IS A KEYWORD")
+
+            # Creating combine string with command and key
+            keyMessage = "keyword " + keyTemp
             print(keyMessage)
 
-            print("Sending Key Message:")
-            jakeClient.send(keyMessage.encode())
+            # changing flag for keywordMarker (shows we have a keywordMarker)
+            keywordMarker = 1
+
+print(keyMessage, putMessage)
+
+
+jakeClient.send(putMessage.encode())
+jakeClient.send(keyMessage.encode())
+
+# NEED TO SORT THE ARRAY 
+# need to clear markers after you send off the data!
+putMarker = 0
+keywordMarker = 0
 
 
 

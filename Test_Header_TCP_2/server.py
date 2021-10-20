@@ -1,3 +1,9 @@
+'''
+You don't have to use one overarching while loop!
+or at least have on overarching one (with accept outside) that counts to stop too many loops
+Then have nested while loops where you do stuff over an over again until you get the data you need
+'''
+
 import socket
 
 # variables
@@ -5,6 +11,7 @@ keywordToCensor = ''
 textToCensor = ''
 
 counter = 0
+totalLoopCycle = 0
 
 piecesOfData = []
 
@@ -32,11 +39,26 @@ jakeServer.listen(5)
 
 # Moved 'clientSocket, clientAddress = jakeServer.accept()' outside the array and it keeps going through
 clientSocket, clientAddress = jakeServer.accept()
-while True:
-    
+#while True:
+while totalLoopCycle <= 50:
+    #clientSocket, clientAddress = jakeServer.accept()
     print(f"Connection from {clientAddress} has been established.")
 
-    
+    counter = 0 # change to length of incoming, need to get length first
+    while (counter < 4):
+        piecesOfData.append(clientSocket.recv(2048).decode())
+        print(piecesOfData)
+        counter +=1
+        print(counter)
+
+    print ("broken out of loop")
+    # break up the keyword from the statement, put in seperate parts of array!
+    print (piecesOfData[0])
+
+
+    #Total loop cycles 
+    totalLoopCycle += 1
+'''    
     # get length then do for loop up to length?
     incomingData = clientSocket.recv(2048).decode()
     print(f"Message 1 = {incomingData}")
@@ -73,3 +95,4 @@ while True:
             print(keywordToCensor)
 
     print("Done with while loop!")
+'''
