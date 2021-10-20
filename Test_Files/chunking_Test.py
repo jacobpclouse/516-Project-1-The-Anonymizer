@@ -8,8 +8,8 @@ def chunkerFunction(string):
     remainder = stringLength % byteSize
     dividesInto = stringLength / byteSize
 
-
-
+# idea! def function(importvariable, export variable/array)
+    # export variable = import variable ++
 
     if remainder == 0:
         print("no remainder")
