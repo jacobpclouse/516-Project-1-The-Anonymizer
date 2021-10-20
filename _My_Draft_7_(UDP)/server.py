@@ -9,6 +9,8 @@ full string and then remove them later? Get length of string before and after an
 2) how can we set is so that the server knows to move along?
 '''
 
+#IDEA: PUT THE SOCKET LOGIC INTO A FUNCTION AND THEN CALL IT
+
 import socket
 # Socket Variables:
 

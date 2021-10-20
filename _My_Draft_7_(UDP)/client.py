@@ -6,6 +6,8 @@ Inspired by the UDP section in the textbook - 2.7
 /media/jake/WDC 500GB/ICSI 516/Project 1/Code Project 1/client server draft 1/Test_Files/UncensoredText/uncensored.txt
 '''
 
+#IDEA: PUT THE SOCKET LOGIC INTO A FUNCTION AND THEN CALL IT
+
 import socket
 
 jakeClientUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
