@@ -10,7 +10,7 @@
 import socket
 
 SocketIP = socket.gethostname()
-SocketPortNumber = 12002
+SocketPortNumber = int(input("Give me a port Number: "))
 
 jakeServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 jakeServer.bind((SocketIP, SocketPortNumber))
@@ -24,11 +24,6 @@ serverSecretPhrase = ''
 
 # Functions
 
-
-def cleanUp(stringToWipe, stringToWipe2):
-    stringToWipe = ''
-    stringToWipe2 = ''
-    print(f"{stringToWipe, stringToWipe2} have been wiped")
 
 
 # ---
@@ -46,11 +41,45 @@ while True:
     clientSocket, clientAddress = jakeServer.accept()
     print(f"Connection from {clientAddress} has been established.")
 
-    # Getting command from client
-    incomingCommand = clientSocket.recv(2048).decode()
-    print(incomingCommand)
-   
+# should loop until both fields are filled
+    while serverNeedToCensor == '' and serverSecretPhrase == '':
 
+        # Getting command from client
+        incomingCommand = clientSocket.recv(2048).decode()
+        print(f"Command: {incomingCommand}")
+
+        # Getting data from client
+        incomingData = clientSocket.recv(2048).decode()
+        print(f"Data: {incomingData}")
+
+        # Getting length from client
+        incomingLength = clientSocket.recv(2048).decode()
+        print(f"Data Length (reported by client): {incomingLength}")
+        
+
+        if incomingCommand == 'put':
+            # putting text to censor in variable
+            serverNeedToCensor = incomingData
+            print("Put Command recieved: ")
+
+
+
+
+        # elif incomingCommand == 'key':
+        #     # loggin keyword to censor into variable
+        #     serverSecretPhrase = incomingData
+        #     print(f"Keyword Recieved: {serverSecretPhrase}")
+
+
+    print("Both string and keyword have been recieved")
+
+    # # Accepting String that needs to be censored from client
+    # serverNeedToCensor = clientSocket.recv(2048).decode()
+    # print(f"String that needs to be censored is {serverNeedToCensor}")
+
+    # # Accepting the Top Secret Word to censor from client
+    # serverSecretPhrase = clientSocket.recv(2048).decode()
+    # print(f"Top Secret Word to censor is {serverSecretPhrase}")
 
     '''
  # Getting data from client

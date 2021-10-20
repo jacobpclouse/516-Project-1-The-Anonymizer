@@ -1,11 +1,11 @@
-# /media/jake/WDC 500GB/ICSI 516/Project 1/Code Project 1/client server draft 1/Test_Files/UncensoredText/uncensored.txt
+# put /media/jake/WDC 500GB/ICSI 516/Project 1/Code Project 1/client server draft 1/Test_Files/UncensoredText/uncensored.txt
 
 # Socket stuff
 import socket
 
 
 SocketIP = socket.gethostname()
-SocketPortNumber = 12002
+SocketPortNumber = int(input("Give me a port Number: "))
 
 jakeClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 jakeClient.connect((SocketIP, SocketPortNumber))
@@ -14,42 +14,28 @@ jakeClient.connect((SocketIP, SocketPortNumber))
 # Variables
 userCommand = ''
 userFilePath = ''
+userDataLength = ''
 
 censorPhrase = ''
 wholeFileToString = ''
 
-commandToServer = ''
 # ---
 
 # Functions
 
 
-def cleanUp(stringToWipe, stringToWipe2, stringToWipe3):
-    stringToWipe = ''
-    stringToWipe2 = ''
-    stringToWipe3 = ''
-    print(f"{stringToWipe, stringToWipe2, stringToWipe3} have been wiped")
 
-
-def copyTextToStringVar(inputFilePath, outputString):
-    # Imports data from file into a string
-    # from https://www.tutorialkart.com/python/python-read-file-as-string/
-    textToChange = open(inputFilePath)
-    outputString = textToChange.read()
-    textToChange.close()
-    print(outputString)
 
 # ---
 
 # trying to make a while loop that I can use to input commands
-
 # FOR TEXT: I am going to assume the the text file will be in the same directory as this file
 # need to store information in array (command will always be command[0] position)
-
 # need to make command lowercase THEN compair it to see if it is quit
 # https://www.programiz.com/python-programming/methods/string/lower
 while userCommand.lower() != 'quit':
     userCommand = input("What is your command: ")
+
     # splitting off 1st three bytes in order to compair
     userFirst3 = userCommand[0:3].lower()
     userRemainingCommand = userCommand[4:]
@@ -71,19 +57,21 @@ while userCommand.lower() != 'quit':
         # https://www.w3schools.com/python/ref_func_range.asp
 
         userFilePath = userRemainingCommand
-        copyTextToStringVar(userFilePath, wholeFileToString)
-        print(f"String is: {wholeFileToString}")
+        textToChange = open(userFilePath)
+        wholeFileToString = textToChange.read()
+        textToChange.close()
 
-        # Packaging up command
-        commandToServer = userFirst3 + wholeFileToString
+        # Sending command to server
+        print('Sending out command')
+        jakeClient.send(str(userFirst3).encode())
 
-        # Sending command + data  to server
-        jakeClient.send(commandToServer.encode())
+        # Sending string to censor to server
+        print('Sending out String Data')
+        jakeClient.send(wholeFileToString.encode())
 
-
-
-        # cleaning up
-        cleanUp(userCommand, userFirst3, userRemainingCommand)
+        # calculating, converting to str, and sending length
+        userDataLength = str(len(wholeFileToString))
+        jakeClient.send(userDataLength.encode())
 
     # Check for 'get' Command
     # Get censored text back from server
@@ -91,17 +79,13 @@ while userCommand.lower() != 'quit':
         print(userRemainingCommand)
 
 
-        # cleaning up
-        cleanUp(userCommand, userFirst3, userRemainingCommand)
 
     # Check for 'keyword' command
     elif userFirst3 == 'key':
         censorPhrase = userCommand[8:]
         print(f"Keyword to replace: {censorPhrase}")
 
-        # cleaning up
-        cleanUp(userCommand, userFirst3, userRemainingCommand)
 
-    # sending data to server
-    # elif censorPhrase != '' and wholeFileToString != '':
-    #     print()
+
+    # Sending string to censor to server
+    jakeClient.send(censorPhrase.encode())
