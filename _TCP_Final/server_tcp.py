@@ -42,11 +42,11 @@ while True:
     print(f"Connection from {clientAddress} has been established.")
 
 # should loop until both fields are filled
-    while serverNeedToCensor == '' and serverSecretPhrase == '':
+    while serverNeedToCensor == '' or serverSecretPhrase == '':
 
         # Getting command from client
         incomingCommand = clientSocket.recv(2048).decode()
-        print(f"Command: {incomingCommand}")
+        print(f"Command: {incomingCommand}") 
 
         # Getting data from client
         incomingData = clientSocket.recv(2048).decode()
