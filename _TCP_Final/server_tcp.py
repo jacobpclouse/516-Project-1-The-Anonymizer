@@ -19,6 +19,7 @@ jakeServer.bind((SocketIP, SocketPortNumber))
 # Variables
 serverNeedToCensor = ''
 serverSecretPhrase = ''
+# hasGetBeenRecieved = False
 
 # ---
 
@@ -54,121 +55,43 @@ while True:
     serverSecretPhrase = clientSocket.recv(2048).decode()
     print(f"Top Secret Word to censor is: {serverSecretPhrase}")
 
+# ---
+    # Displaying output
+    print(
+        f"RECIEVED {serverNeedToCensor, serverSecretPhrase} FROM {clientAddress}")
 
-# # should loop until both fields are filled
-#     while serverNeedToCensor == '' or serverSecretPhrase == '':
+   # --
 
-#         # Getting command from client
-#         incomingCommand = clientSocket.recv(2048).decode()
-#         print(f"Command: {incomingCommand}") 
+    # Gets length of string and creates the character to replace it with
+    replacementString = ''
+    serverReplacementChar = 'X'
 
-#         # Getting data from client
-#         incomingData = clientSocket.recv(2048).decode()
-#         print(f"Data: {incomingData}")
+    for letters in serverSecretPhrase:
+        replacementString += serverReplacementChar
 
-#         # Getting length from client
-#         incomingLength = clientSocket.recv(2048).decode()
-#         print(f"Data Length (reported by client): {incomingLength}")
-        
-
-#         if incomingCommand == 'put':
-#             # putting text to censor in variable
-#             serverNeedToCensor = incomingData
-#             print("Put Command recieved: ")
+    print("The Replacement string will be: ")
+    print(replacementString)
 
 
+# --
+
+    # Doing find and replace
+    # from https://www.geeksforgeeks.org/python-string-replace/
+    censoredOutput = serverNeedToCensor.replace(
+        serverSecretPhrase, replacementString)
+    print(censoredOutput)
 
 
-#         # elif incomingCommand == 'key':
-#         #     # loggin keyword to censor into variable
-#         #     serverSecretPhrase = incomingData
-#         #     print(f"Keyword Recieved: {serverSecretPhrase}")
+    # ---
+    # Get command - will send after recieving initiation
+    # 
+    serverGetRequest = clientSocket.recv(2048).decode()
+    print(f"Get Request Recieved: Sending back censored output")
+    # hasGetBeenRecieved = True
 
 
-#     print("Both string and keyword have been recieved")
+    # Creating the data to send back to client
+    clientSocket.send(censoredOutput.encode())
+    
 
-#     # # Accepting String that needs to be censored from client
-#     # serverNeedToCensor = clientSocket.recv(2048).decode()
-#     # print(f"String that needs to be censored is {serverNeedToCensor}")
-
-#     # # Accepting the Top Secret Word to censor from client
-#     # serverSecretPhrase = clientSocket.recv(2048).decode()
-#     # print(f"Top Secret Word to censor is {serverSecretPhrase}")
-
-#     '''
-#  # Getting data from client
-#     incomingData = clientSocket.recv(2048).decode()
-#     print(incomingData)
-
-
-#     # should loop until both fields are filled
-#     while serverNeedToCensor == '' and serverSecretPhrase == '':
-
-#         # Getting command from client
-#         incomingCommand = clientSocket.recv(2048).decode()
-#         # Getting data from client
-#         incomingData = clientSocket.recv(2048).decode()
-
-#         if incomingCommand == 'put':
-#             # putting text to censor in variable
-#             serverNeedToCensor = incomingData
-#             print("Put Command recieved: Have string to censor:")
-#             # cleaning up
-#             cleanUp(incomingCommand, incomingData)
-
-#         elif incomingCommand == 'key':
-#             # loggin keyword to censor into variable
-#             serverSecretPhrase = incomingData
-#             print(f"Keyword Recieved: {serverSecretPhrase}")
-#             # cleaning up
-#             cleanUp(incomingCommand, incomingData)
-
-#     print("Both string and keyword have been recieved")
-# '''
-
-# '''
-
-#     # ---
-#     # Accepting String that needs to be censored from client
-#     serverNeedToCensor = clientSocket.recv(2048).decode()
-#     print(f"String that needs to be censored is {serverNeedToCensor}")
-
-#     # ---
-#     # Accepting the Top Secret Word to censor from client
-#     serverSecretPhrase = clientSocket.recv(2048).decode()
-#     print(f"Top Secret Word to censor is {serverSecretPhrase}")
-
-#     # ---
-#     # Accepting the replacement character to censor from client
-#     serverReplacementChar = clientSocket.recv(2048).decode()
-#     print(f"the replacement character is {serverReplacementChar}")
-
-#     # ---
-#     # Displaying output
-#     print(
-#         f"RECIEVED {serverNeedToCensor, serverSecretPhrase, serverReplacementChar} FROM {clientAddress}")
-
-#    # --
-
-#     # Gets length of string and creates the character to replace it with
-#     replacementString = ''
-
-#     for letters in serverSecretPhrase:
-#         replacementString += serverReplacementChar
-
-#     print(f"The Replacement string will be {replacementString}")
-
-# # --
-
-#     # Doing find and replace
-#     # from https://www.geeksforgeeks.org/python-string-replace/
-#     censoredOutput = serverNeedToCensor.replace(
-#         serverSecretPhrase, replacementString)
-#     # print(censoredOutput)
-
-
-#     # Creating the data to send back to client
-#     clientSocket.send(censoredOutput.encode())
-
-#     # ---
-# '''
+    # ---

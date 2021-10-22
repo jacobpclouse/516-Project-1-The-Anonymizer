@@ -46,7 +46,7 @@ userCommand = ''
     # try breaking this out into its own function if it works (then can call it)
     # ** Might try having the entire function under this command if it works (empty string)
 while userCommand == '':
-    userCommand = input("Waiting for command: ")
+    userCommand = input("Waiting for Put command: ")
 
     if userCommand.lower() == 'quit':
         break
@@ -74,14 +74,14 @@ jakeClient.send(wholeFileToString.encode())
 
 
 userCommand = ''
-
+userCommandArray = []
 
 # ---
 
 
     # prompting user for next command
 while userCommand == '':
-    userCommand = input("Waiting for command: ")
+    userCommand = input("Waiting for Keyword command: ")
 
     if userCommand.lower() == 'quit':
         break
@@ -107,70 +107,50 @@ jakeClient.send(userCensorPhraseNFile.encode())
 
 userCommand = ''
 
+# --
+
+    # Get command
+    # prompting user for next command
+while userCommand == '':
+    userCommand = input("Waiting for Get command: ")
+
+    if userCommand.lower() == 'quit':
+        break
+
+    # Split on String
+    # https://www.tutorialspoint.com/python/string_split.htm
+    # ** break out into function
+userCommandArray = userCommand.split(' ', 1)
+print(f"User command: {userCommandArray[0]}")
+
+# -- determining what filename will be
+userGetRequest = userCommandArray[0]
+userGetRequestFilePath = userCommandArray[1]
 
 
+# sending Get command and request for filename to server
+# assuming third string is always 'get'
+jakeClient.send(userGetRequest.encode())
 
 
+# --
+
+#Getting censored message back from server & printing out
+censoredMessage = jakeClient.recv(2048)
+print(f'From Server: {censoredMessage.decode()}')
 
 
+#---
 
-# can use another split on this to seperate out the keyword from the filename (only one split!)
-# elif userCommandArray[1] == 'keyword':
-#     print("This command is a KEY!")
-
-#     print(userCommandArray[1])
-
-
-# trying to make a while loop that I can use to input commands
-# https://www.programiz.com/python-programming/methods/string/lower
-# while userCommand.lower() != 'quit':
-#     userCommand = input("What is your command: ")
-
-#     # splitting off 1st three bytes in order to compair
-#     userFirst3 = userCommand[0:3].lower()
-#     userRemainingCommand = userCommand[4:]
-
-#     if len(userCommand) <= 3:
-#         # making sure that the user is giving us correct parameters
-#         # need to do more checks to confirm that following characters are valid
-#         print("you need to give a valid command")
-
-#     # make sure that each of the target string, no no word and censored char are not empty
-
-#     # Check for 'put' Command
-#     # Upload Text file & send to server
-#     elif userFirst3 == 'put':
-#         # ** Can we assume that the file is in the same directory? Or in a predefined directory?
-#         # ** I am assuming that we only need 'put text.txt' and not 'put /main/docs/My Files/text.txt'
-#         # ** I am slicing based on order, can we expect other orders like text.txt put?
-#         # ** can we assume the order that the server is going to get this in?
-#         # https://www.w3schools.com/python/ref_func_range.asp
-
-#         userFilePath = userRemainingCommand
-#         textToChange = open(userFilePath)
-#         wholeFileToString = textToChange.read()
-#         textToChange.close()
-# userCommand
-
-#         # Sending string to censor to server
-#         print('Sending out String Data')
-#         jakeClient.send(wholeFileToString.encode())
-
-#         # calculating, converting to str, and sending length
-#         userDataLength = str(len(wholeFileToString))
-#         jakeClient.send(userDataLength.encode())
-
-#     # Check for 'get' Command
-#     # Get censored text back from server
-#     elif userFirst3 == 'get':
-#         print(userRemainingCommand)
+# printing to standard out
+# from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
+with open(f'./OutputText/{userGetRequestFilePath}.txt', 'w') as f:
+    print(censoredMessage, file=f)
 
 
-#     # Check for 'keyword' command
-#     elif userFirst3 == 'key':
-#         censorPhrase = userCommand[8:]
-#         print(f"Keyword to replace: {censorPhrase}")
+jakeClient.close()
 
 
-#     # Sending string to censor to server
-#     jakeClient.send(censorPhrase.encode())
+# MIGHT NEED TO CHECK FOR SPACES ON EACH SIDE! IT CENSORS ANYTHING THAT HAS THE LETTER IN IT
+# ALSO TRY TO USE FUNCTIONS AS WELL
+# CHECK WHAT SHE MEANS BY THE 'GET' COMMAND
