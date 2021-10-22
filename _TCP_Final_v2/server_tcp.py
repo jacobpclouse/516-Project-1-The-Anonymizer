@@ -54,11 +54,17 @@ while True:
     print(f"Connection from {clientAddress} has been established.")
 
 
+
     # ---
     # Put command 
     # Accepting String that needs to be censored from client
     serverNeedToCensor = clientSocket.recv(2048).decode()
     print(f"String that needs to be censored is: {serverNeedToCensor}")
+
+    # PUT: accepting file path so that we can compair to keyword path later
+    serverFilePathFromClient = clientSocket.recv(2048).decode()
+    print(f"PUT: File Path has been stored: {serverFilePathFromClient}")
+
 
     # ---
     # Keyword command 
@@ -66,6 +72,13 @@ while True:
     serverSecretPhrase = clientSocket.recv(2048).decode()
     print(f"Top Secret Word to censor is: {serverSecretPhrase}")
 
+    # KEYWORD: accepting file path so that we can compair to keyword path later
+    serverFilePathKeyword = clientSocket.recv(2048).decode()
+    print(f"KEYWORD: File Path has been stored: {serverFilePathKeyword}")
+
+
+
+    # Accepting file path from client to ensure that it is the same as the one from the put command
 # ---
     # Displaying output
     print(

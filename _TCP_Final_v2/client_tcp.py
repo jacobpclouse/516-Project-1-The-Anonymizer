@@ -70,9 +70,11 @@ print(f"User command: {userCommandArray[0]}")
 
 # 'put' Command
 # opening file
-textToChange = open(userCommandArray[1])
+filePath = userCommandArray[1]
+textToChange = open(filePath)
 wholeFileToString = textToChange.read()
 textToChange.close()
+
 
 print(wholeFileToString)
 
@@ -80,6 +82,8 @@ print(wholeFileToString)
 # assuming first string is always 'put'
 jakeClient.send(wholeFileToString.encode())
 
+# sending out the file path to server so that it can be compaired to the keyword path later
+jakeClient.send(filePath.encode())
 
 userCommand = ''
 userCommandArray = []
@@ -97,8 +101,9 @@ while userCommand == '':
     # Split on String
     # https://www.tutorialspoint.com/python/string_split.htm
     # ** break out into function
-userCommandArray = userCommand.split(' ', 1)
+userCommandArray = userCommand.split(' ', 2)
 print(f"User command: {userCommandArray[0]}")
+print(userCommandArray)
 
 
 # -- 
@@ -112,6 +117,12 @@ print(userCensorPhraseNFile)
 # sending keyword phrase and filename to operate on to server
 # assuming second string is always 'keyword'
 jakeClient.send(userCensorPhraseNFile.encode())
+
+
+# sending filepath to server to confirm that it is correct
+
+jakeClient.send(userCommandArray[2].encode())
+
 
 userCommand = ''
 
