@@ -17,9 +17,13 @@ If the user makes a mistake (ie: gives wrong keyword) that on them (don't worry 
 """
 
 
-# put /media/jake/WDC 500GB/ICSI 516/Project 1/Code Project 1/client server draft 1/Test_Files/UncensoredText/uncensored.txt
-# put /media/jake/WDC 500GB/ICSI 516/Project 1/Code Project 1/client server draft 1/_TCP_Final/uncensored_text.txt
-# put uncensored_text.txt
+# put ./InputText/uncensored_text.txt
+# put ./InputText/File1.txt
+# put ./InputText/File2.txt
+# put ./InputText/File3.txt
+# put ./InputText/File4.txt
+
+# keyword Project ./InputText/File1.txt
 
 
 # Import libraries
@@ -27,20 +31,27 @@ import socket
 import sys
 
 
-# importing Command line arguments - for port number
+
+
+# importing Command line arguments - for IP and port numbers
 # https://cs.stanford.edu/people/nick/py/python-main.html
 
+def returnIP():
+    incomingIP = sys.argv[1]
+    return incomingIP
+
+
 def returnPort():
-    inputVar = int(sys.argv[1])
-    return inputVar
-    # Return Statement in function to return value
-    # https://www.w3schools.com/python/python_functions.asp
+    incomingPort = int(sys.argv[2])
+    return incomingPort
 
 
 
-SocketIP = socket.gethostname()
+#SocketIP = socket.gethostname()
+SocketIP = returnIP()
+print(SocketIP)
 SocketPortNumber = returnPort()
-# SocketPortNumber = int(input("Give me a port Number: "))
+print(SocketPortNumber)
 
 jakeClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
 jakeClient.connect((SocketIP, SocketPortNumber))

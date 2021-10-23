@@ -16,19 +16,27 @@ import sys
 
 
 
-# importing Command line arguments - for port number
+# importing Command line arguments - for IP and port numbers
 # https://cs.stanford.edu/people/nick/py/python-main.html
 
+
+def returnIP():
+    incomingIP = sys.argv[1]
+    return incomingIP
+
+
 def returnPort():
-    inputVar = int(sys.argv[1])
-    return inputVar
-    # Return Statement in function to return value
-    # https://www.w3schools.com/python/python_functions.asp
+    incomingPort = int(sys.argv[2])
+    return incomingPort
 
 
-SocketIP = socket.gethostname()
+#SocketIP = socket.gethostname()
+SocketIP = returnIP()
+print(SocketIP)
 SocketPortNumber = returnPort()
-#SocketPortNumber = int(input("Give me a port Number: "))
+print(SocketPortNumber)
+
+
 
 jakeServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
 jakeServer.bind((SocketIP, SocketPortNumber))
