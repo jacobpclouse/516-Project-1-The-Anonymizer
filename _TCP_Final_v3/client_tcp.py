@@ -16,10 +16,15 @@ If the user makes a mistake (ie: gives wrong keyword) that on them (don't worry 
 ** THINK about HOW you are going to impliment string splitting!
 """
 
+# put File1.txt
+# keyword ICSI File1.txt
+# get AnonFile1.txt
 
-# put ./OutputText/ZInputText/File1.txt
 
-# keyword Project ./OutputText/ZInputText/File1.txt
+
+# put ./ZInputText/File1.txt
+
+# keyword Project ./ZInputText/File1.txt
 
 # keyword Fall ./OutputText/ZInputText/File1.txt
     # will recieve filename back from server
@@ -157,62 +162,55 @@ print("Awaiting server response.")
 confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
 print(confirmationServer1)
 
-# # sending keyword phrase and filename to operate on to server
-# # assuming second string is always 'keyword'
-# jakeClient.send(userCensorPhraseNFile.encode())
+# # Storing new file name in variable
+#newCensoredFileName = jakeClient.recv(2048).decode("utf-8")
+
+# cleaning up
+userCommand = ''
+userCommandArray = []
+confirmationServer1 = ''
 
 
-# # sending filepath to server to confirm that it is correct
-
-# jakeClient.send(userCommandArray[2].encode())
 
 
-# userCommand = ''
+# -----------
+# GET COMMAND
+# -----------
 
-# # --
+# prompting user for next command
+while userCommand == '':
+    userCommand = input("Enter command: ")
 
-#     # Get command
-#     # prompting user for next command
-# while userCommand == '':
-#     userCommand = input("Waiting for Get command: ")
-
-#     if userCommand.lower() == 'quit':
-#         break
+    if userCommand.lower() == 'quit':
+        break
 
 #     # Split on String
 #     # https://www.tutorialspoint.com/python/string_split.htm
 #     # ** break out into function
-# userCommandArray = userCommand.split(' ', 1)
-# print(f"User command: {userCommandArray[0]}")
+userCommandArray = userCommand.split(' ', 1)
+print(f"User command: {userCommandArray[0]}")
+print(userCommandArray[1])
 
-# # -- determining what filename will be
-# userGetRequest = userCommandArray[0]
-# userGetRequestFilePath = userCommandArray[1]
-
-
-# # sending Get command and request for filename to server
-# # assuming third string is always 'get'
-# jakeClient.send(userGetRequest.encode())
+userGetRequest = userCommandArray[1]
 
 
-# # --
+# sending Get command and request for filename to server
+jakeClient.send(userGetRequest.encode())
 
-# #Getting censored message back from server & printing out
-# censoredMessage = jakeClient.recv(2048)
+# Getting censored message back from server & printing out
+censoredMessage = jakeClient.recv(65527).decode("utf-8")
+
+print(censoredMessage)
+
+# Getting Confirmaton of Download from server
 # print(f'From Server: {censoredMessage.decode()}')
 
 
-# #---
+# printing to standard out
+# from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
+with open(f'client_{userGetRequest}', 'w') as f:
+    print(censoredMessage, file=f)
 
-# # printing to standard out
-# # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
-# with open(f'./OutputText/{userGetRequestFilePath}.txt', 'w') as f:
-#     print(censoredMessage, file=f)
-
-
-# jakeClient.close()
+jakeClient.close()
 
 
-# # MIGHT NEED TO CHECK FOR SPACES ON EACH SIDE! IT CENSORS ANYTHING THAT HAS THE LETTER IN IT
-# # ALSO TRY TO USE FUNCTIONS AS WELL
-# # CHECK WHAT SHE MEANS BY THE 'GET' COMMAND

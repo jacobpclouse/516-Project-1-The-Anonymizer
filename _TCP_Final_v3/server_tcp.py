@@ -95,6 +95,7 @@ while True:
 
     # Output sting to file
     # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
+    #f = open("myfile.txt", "x")
     with open(f'{serverOriginalFileName}_', 'w') as f:
         print(serverNeedToCensor, file=f)
 
@@ -120,6 +121,9 @@ while True:
     serverKeywordFileName = serverKeywordArray[1]
     print(f"Keyword Filename: {serverKeywordFileName}")
 
+    # creating string to replace target phrase with
+    serverReplacementString = myFindTargetString(serverSecretPhrase)
+    print(serverReplacementString)
 
     # opening file
     # https://docs.python.org/3/library/functions.html#open
@@ -127,58 +131,57 @@ while True:
     serverWholeFileToString = textToChange.read()
     textToChange.close()
 
-
+# ----
     # Anonymize Logic here
-    # creating string to replace target phrase with
-    serverReplacementString = myFindTargetString(serverSecretPhrase)
-    print(serverReplacementString)
+# ----
 
+    # Doing find and replace
+    # from https://www.geeksforgeeks.org/python-string-replace/
+    serverCensoredOutput = serverWholeFileToString.replace(
+        serverSecretPhrase, serverReplacementString)
+
+    # Output sting to file
+    # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
+    
+    #f = open(f"{serverCensoredName}", "x")
+    with open(f"{serverCensoredName}", 'w') as f:
+        print(serverCensoredOutput, file=f)
+
+# ----
+
+
+    
     # send response back to client
     # Sending back name of the new censored file
     messageRecieved = f"Server response: File {serverKeywordFileName} has been anonymized. Output file is {serverCensoredName}"
     clientSocket.send(messageRecieved.encode())
 
+    # maybe send as header?
+    #clientSocket.send(serverCensoredName.encode())
+    
+    # -----------
+    # GET COMMAND
+    # -----------
+
+    # Recieving get command and checking to see if what the anon file is
+    serverGetRequest = clientSocket.recv(2048).decode()
+    print(serverGetRequest)
+    print(f"Get Request Recieved: Sending back censored output")
+
+    #serverGetOutput = "Your Request was flawed"
+
+    # if the requested filename is the same as the anonymized file,
+    # then move contents to a string
+    # if serverGetRequest == serverCensoredName:
+    #     serverGetOutput = open(f"{serverCensoredName}")
+    #     serverFinalText = textToChange.read()
+    #     textToChange.close()
+    textToChange = open(serverCensoredName)
+    serverFinalText = textToChange.read()
+    textToChange.close()
+
+        
+    clientSocket.send(serverFinalText.encode())
+
     
 
-
-#     # Accepting file path from client to ensure that it is the same as the one from the put command
-# # ---
-#     # Displaying output
-#     print(
-#         f"RECIEVED {serverNeedToCensor, serverSecretPhrase} FROM {clientAddress}")
-
-#    # --
-
-#     # Gets length of string and creates the character to replace it with
-#     replacementString = ''
-#     serverReplacementChar = 'X'
-
-#     for letters in serverSecretPhrase:
-#         replacementString += serverReplacementChar
-
-#     print("The Replacement string will be: ")
-#     print(replacementString)
-
-
-# # --
-
-#     # Doing find and replace
-#     # from https://www.geeksforgeeks.org/python-string-replace/
-#     censoredOutput = serverNeedToCensor.replace(
-#         serverSecretPhrase, replacementString)
-#     print(censoredOutput)
-
-
-#     # ---
-#     # Get command - will send after recieving initiation
-#     # 
-#     serverGetRequest = clientSocket.recv(2048).decode()
-#     print(f"Get Request Recieved: Sending back censored output")
-
-
-
-#     # Creating the data to send back to client
-#     clientSocket.send(censoredOutput.encode())
-    
-
-#     # ---
