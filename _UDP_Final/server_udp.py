@@ -10,7 +10,9 @@
         Should we assume that you will only test port numbers? or will you try and cause an error by leaving it blank/enterning letters?
 
  4) I'm not getting full length back the second time (it gives me full message first time, but only like 2/3 on second) Why?
- 5) How do I quit out of a program at any time?   
+ 5) How do I quit out of a program at any time?  
+
+ 6) For some reason, sometimes I need to put in my computers hostname (ie: SHODAN) instead of IP, why? It worked with the previous copy, but not here for some reason (specifically UDP) 
  '''
 
 # Import libraries
@@ -32,8 +34,59 @@ def returnPort():
     incomingPort = int(sys.argv[2])
     return incomingPort
 
+def chunkerFunction(string):
+
+    #-------------------
+    # chunker Variables: 
+    #-------------------
+
+    # getting length of string
+    stringLength = len(string)
+    print(f"Length of String: {stringLength} characters")
+
+    # determining the target size (ie: this will be 1000 for udp)
+    byteSize = 10
+
+    # setting a counter equal to length, will decriment as chunks are written
+    lengthLeft = stringLength
+
+    # setting start position variable, will incriment up
+    startCut = 0
+
+    # setting end cut (exclusive), will incriment up
+    endCut = startCut + byteSize
+
+
+    #---------------
+    # chunker Logic:
+    #---------------
+
+    # implimenting a sort of do while loop
+    # https://www.educative.io/edpresso/how-to-emulate-a-do-while-loop-in-python
+    while True:
+        # printing out chunk equal to byte size
+        print(string[startCut:endCut])
+        arrayToSend.append(string[startCut:endCut])
+
+        # Incrimenting startCut and endCut by byteSize
+        startCut += byteSize
+        endCut += byteSize
+
+        # Decrimenting lengthLeft
+        lengthLeft -= byteSize
+
+        # If lengthLeft is less than or equal to byteSize, just print out what is left and end it
+        if(lengthLeft <= byteSize):
+            print(string[startCut:])
+            arrayToSend.append(string[startCut:])
+            break
+
+
+# -----
+# Socket Port and IP 
 
 SocketIP = returnIP()
+SocketIP = socket.gethostname()
 print(SocketIP)
 SocketPortNumber = returnPort()
 print(SocketPortNumber)
@@ -47,6 +100,11 @@ jakeServer.bind((SocketIP, SocketPortNumber))
 # Variables
 serverNeedToCensor = ''
 serverSecretPhrase = ''
+
+# creating array to append seperate strings to
+# https://www.kite.com/python/answers/how-to-make-an-array-of-strings-in-python
+arrayToSend = []
+chunkBookmark = 0
 
 # added
 serverOriginalFileName = ''

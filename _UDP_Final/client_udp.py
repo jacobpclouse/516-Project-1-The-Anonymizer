@@ -31,6 +31,9 @@ If the user makes a mistake (ie: gives wrong keyword) that on them (don't worry 
 import socket
 import sys
 
+# ---
+
+# Functions:
 
 # importing Command line arguments - for IP and port numbers
 # https://cs.stanford.edu/people/nick/py/python-main.html
@@ -45,19 +48,77 @@ def returnPort():
     return incomingPort
 
 
+def chunkerFunction(string):
+    #-------------------
+    # chunker Variables: 
+    #-------------------
+
+    # getting length of string
+    stringLength = len(string)
+    print(f"Length of String: {stringLength} characters")
+
+    # determining the target size (ie: this will be 1000 for udp)
+    byteSize = 1000
+
+    # setting a counter equal to length, will decriment as chunks are written
+    lengthLeft = stringLength
+
+    # setting start position variable, will incriment up
+    startCut = 0
+
+    # setting end cut (exclusive), will incriment up
+    endCut = startCut + byteSize
+
+
+    #---------------
+    # chunker Logic:
+    #---------------
+
+    # implimenting a sort of do while loop
+    # https://www.educative.io/edpresso/how-to-emulate-a-do-while-loop-in-python
+    while True:
+        # printing out chunk equal to byte size
+        print(string[startCut:endCut])
+        arrayToSend.append(string[startCut:endCut])
+
+        # Incrimenting startCut and endCut by byteSize
+        startCut += byteSize
+        endCut += byteSize
+
+        # Decrimenting lengthLeft
+        lengthLeft -= byteSize
+
+        # If lengthLeft is less than or equal to byteSize, just print out what is left and end it
+        if(lengthLeft <= byteSize):
+            print(string[startCut:])
+            arrayToSend.append(string[startCut:])
+            break
+
+
+# -----
+# Socket Port and IP 
+
 SocketIP = returnIP()
 print(SocketIP)
 SocketPortNumber = returnPort()
 print(SocketPortNumber)
 
-jakeClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-jakeClient.connect((SocketIP, SocketPortNumber))
+#jakeClient = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+#jakeClient.connect((SocketIP, SocketPortNumber))
+jakeClientUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # ---
 
 # Variables
 userCommand = ''
 userCommandArray = ['', '']
+
+
+# creating array to append seperate strings to
+# https://www.kite.com/python/answers/how-to-make-an-array-of-strings-in-python
+arrayToSend = []
+chunkBookmark = 0
+
 # ---
 
 # Main Logic!
@@ -86,8 +147,15 @@ if userCommandArray[0].lower() != 'quit':
 
     print(f"The length of the file is: {len(wholeFileToString)}")
 
+    # -----------
+    # Need To Send Length to server
+    # -----------
+
+
+
     # sending original filename to server
-    jakeClient.send(filePath.encode())
+    #jakeClient.send(filePath.encode())
+    jakeClientUDP.sendto(filePath.encode(), (SocketIP, SocketPortNumber))
 
     # sending put string to server
     # assuming first string is always 'put'
