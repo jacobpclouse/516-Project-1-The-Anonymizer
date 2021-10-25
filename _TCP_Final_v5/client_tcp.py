@@ -1,3 +1,5 @@
+# THIS USES PYTHON Python 3.8.10
+
 """
 You can re-run the client to re-execute the program
 Send data as soon as you get it (ie: get a put, then send it off right away, don't wait and lump together)
@@ -22,23 +24,12 @@ If the user makes a mistake (ie: gives wrong keyword) that on them (don't worry 
 
 # keyword 516 File4.txt
 
-# put ./ZInputText/File1.txt
-
-# keyword Project ./ZInputText/File1.txt
-
-# keyword Fall ./OutputText/ZInputText/File1.txt
-    # will recieve filename back from server
-
-# get File1.txt
-
-
-
+# -----------------------------------
+# -----------------------------------
 
 # Import libraries
 import socket
 import sys
-
-
 
 
 # importing Command line arguments - for IP and port numbers
@@ -54,8 +45,6 @@ def returnPort():
     return incomingPort
 
 
-
-#SocketIP = socket.gethostname()
 SocketIP = returnIP()
 print(SocketIP)
 SocketPortNumber = returnPort()
@@ -68,33 +57,26 @@ jakeClient.connect((SocketIP, SocketPortNumber))
 
 # Variables
 userCommand = ''
-
+userCommandArray = ['', '']
 # ---
 
 # Main Logic!
-    # try breaking this out into its own function if it works (then can call it)
-    # ** Might try having the entire function under this command if it works (empty string)
-
-    # -----------
-    # PUT COMMAND
-    # -----------
-
-while userCommand.lower() == '' or userCommand.lower() == 'put' or userCommand.lower() == 'keyword' or userCommand.lower() == 'get':
-    #while userCommand == '':
-    userCommand = input("Enter Command: ")
-
-        #if userCommand.lower() == 'quit':
-            #break
 
 
+# -----------
+# PUT COMMAND
+# -----------
 
-        # Split on String
-        # https://www.tutorialspoint.com/python/string_split.htm
-        # ** break out into function
-    userCommandArray = userCommand.split(' ', 1)
-    print(f"User command: {userCommandArray[0]}")
+# while userCommandArray[0].lower() != 'quit':
+userCommand = input("Enter Command: ")
 
+# Split on String
+# https://www.tutorialspoint.com/python/string_split.htm
+userCommandArray = userCommand.split(' ', 1)
+print(f"User command: {userCommandArray[0]}")
 
+# quit condition
+if userCommandArray[0].lower() != 'quit':
     # opening file
     # https://docs.python.org/3/library/functions.html#open
     filePath = userCommandArray[1]
@@ -102,9 +84,7 @@ while userCommand.lower() == '' or userCommand.lower() == 'put' or userCommand.l
     wholeFileToString = textToChange.read()
     textToChange.close()
 
-
     print(f"The length of the file is: {len(wholeFileToString)}")
-
 
     # sending original filename to server
     jakeClient.send(filePath.encode())
@@ -114,48 +94,46 @@ while userCommand.lower() == '' or userCommand.lower() == 'put' or userCommand.l
     jakeClient.send(wholeFileToString.encode())
     print("Awaiting Server Response")
 
-
     # Recieving confirmation back from server
     confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
     print(confirmationServer1)
 
-
     # cleaning up
     userCommand = ''
-    userCommandArray = []
     confirmationServer1 = ''
+else:
+    print('Quit Statement Active 1')
+    jakeClient.close()
 
-    # # ---
-
-
-    # ---------------
-    # KEYWORD COMMAND
-    # ---------------
+# # ---
 
 
-    # prompting user for next command
-    #while userCommand == '':
+
+# ---------------
+# KEYWORD COMMAND
+# ---------------
+
+# prompting user for next command
+# also checking to see if quit command is not active
+if userCommandArray[0].lower() != 'quit':
     userCommand = input("Enter command: ")
 
-        #if userCommand.lower() == 'quit':
-            #break
-
-    #     # Split on String
-    #     # https://www.tutorialspoint.com/python/string_split.htm
-    #     # ** break out into function
+#     # Split on String
+#     # https://www.tutorialspoint.com/python/string_split.htm
     userCommandArray = userCommand.split(' ', 1)
     print(f"User command: {userCommandArray[0]}")
+
+# quit condition
+if userCommandArray[0].lower() != 'quit':
     print(userCommandArray[1])
 
 
-    # # -- 
-
+    # # --
 
     # # specifies phrase to censor & file to have server censor it on
     # sends it to server
     userCensorPhrase = userCommandArray[1]
     jakeClient.send(userCensorPhrase.encode())
-
 
     # Waiting for Server Response
     print("Awaiting server response.")
@@ -164,70 +142,66 @@ while userCommand.lower() == '' or userCommand.lower() == 'put' or userCommand.l
     confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
     print(confirmationServer1)
 
-    # # Storing new file name in variable
-    #newCensoredFileName = jakeClient.recv(2048).decode("utf-8")
-
     # cleaning up
     userCommand = ''
-    userCommandArray = []
+    userCommandArray = ['', '']
     confirmationServer1 = ''
+else:
+    print('Quit Statement Active 2')
 
 
+# -----------
+# GET COMMAND
+# -----------
 
-
-    # -----------
-    # GET COMMAND
-    # -----------
-
-    # prompting user for next command
-    #while userCommand == '':
+# prompting user for next command
+if userCommandArray[0].lower() != 'quit':
     userCommand = input("Enter command: ")
 
-        #if userCommand.lower() == 'quit':
-            #break
+userCommandArray = userCommand.split(' ', 1)
+print(f"User command: {userCommandArray[0]}")
 
-    #     # Split on String
-    #     # https://www.tutorialspoint.com/python/string_split.htm
-    #     # ** break out into function
-    userCommandArray = userCommand.split(' ', 1)
-    print(f"User command: {userCommandArray[0]}")
+# quit condition
+if userCommandArray[0].lower() != 'quit':
+#     # Split on String
+#     # https://www.tutorialspoint.com/python/string_split.htm
+#     # ** break out into function
+
     print(userCommandArray[1])
 
     userGetRequest = userCommandArray[1]
-
 
     # sending Get command and request for filename to server
     jakeClient.send(userGetRequest.encode())
 
     # Getting censored message back from server & printing out
-    #censoredMessage = jakeClient.recv(70000).decode("utf-8")
+    # censoredMessage = jakeClient.recv(70000).decode("utf-8")
     censoredMessage = jakeClient.recv(70000).decode()
 
     print(censoredMessage)
     print(f"Length of Censored Message 1: {len(censoredMessage)}")
     # Getting Confirmaton of Download from server
-    # print(f'From Server: {censoredMessage.decode()}')
-
 
     # printing to standard out
     # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
     with open(f'client_{userGetRequest}', 'w') as f:
-        print(censoredMessage, file=f)
+            print(censoredMessage, file=f)
 
     print(f"Length of Censored Message 2: {len(censoredMessage)}")
 
-    # clean up
+        # clean up
     censoredMessage = ''
+else:
+    print('Quit Statement Active 3')
+
 
 
     # -----------
     # QUIT COMMAND
     # -----------
+if userCommandArray[0].lower() != 'quit':
     userCommand = input("Enter command: ")
+    print(f"User Command: {userCommand}")
     print("Quitting...")
 
-    jakeClient.close()
-
-else:
-    quitCommand = 'quit'
-    jakeClient.send(quitCommand.encode())
+jakeClient.close()

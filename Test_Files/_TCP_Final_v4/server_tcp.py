@@ -8,7 +8,7 @@
         Should we assume that you will only test port numbers? or will you try and cause an error by leaving it blank/enterning letters?
 
  4) I'm not getting full length back the second time (it gives me full message first time, but only like 2/3 on second) Why?
-        
+ 5) How do I quit out of a program at any time?   
  '''
 
 # Import libraries
@@ -31,7 +31,6 @@ def returnPort():
     return incomingPort
 
 
-#SocketIP = socket.gethostname()
 SocketIP = returnIP()
 print(SocketIP)
 SocketPortNumber = returnPort()
@@ -73,6 +72,7 @@ jakeServer.listen(5)
 # clientSocket, clientAddress = jakeServer.accept()
 # going to get data from client, loop until manually stoped
 while True:
+
     clientSocket, clientAddress = jakeServer.accept()
     print(f"Connection from {clientAddress} has been established.")
 
@@ -188,4 +188,5 @@ while True:
     clientSocket.send(serverFinalText.encode())
     #clientSocket.send(serverFinalText.encode("utf"))
     
+   
 
