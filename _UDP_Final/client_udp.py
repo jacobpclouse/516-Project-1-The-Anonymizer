@@ -205,7 +205,34 @@ if userCommandArray[0].lower() != 'quit':
         # should start at user1000ByteArray[0]
         # should end at user1000ByteArray[loopsOfChunk]
     
+    currentChunkIndex = 0
+    ifAcked = ''
+
+    while currentChunkIndex < loopsOfChunk:
+        print(f"On Array Section {currentChunkIndex}")
+
+
+        #Sending to server
+        outboundString = str(user1000ByteArray[currentChunkIndex])
+        print(outboundString)
+        jakeClientUDP.sendto(outboundString.encode("utf-8"), (SocketIP, SocketPortNumber))
+
+        # wait for ACK
+
+        print("Waiting for Ack")
+        ifAcked, clientAddress = jakeClientUDP.recvfrom(2048)
+        ifAcked = ifAcked.decode("utf-8")
+        print(f"Server Says: {ifAcked}")
+
+        # incriment
+        currentChunkIndex += 1
+
+        # clean up
+        ifAcked = ''
+
+
     
+    # Need to wait until recieve FIN Message from 
 # ---
 
 

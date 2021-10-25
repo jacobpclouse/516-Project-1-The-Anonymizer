@@ -164,6 +164,7 @@ while True:
     serverNeedToCensorLength, clientAddress = jakeServerUDP.recvfrom(2048)
     serverNeedToCensorLength = serverNeedToCensorLength.decode()
     serverNeedToCensorLengthArray = (serverNeedToCensorLength).split(':', 1)
+    print(serverNeedToCensorLengthArray)
     print(f"According to client, The length of the file is: {serverNeedToCensorLengthArray[1]}")
 
 
@@ -179,9 +180,41 @@ while True:
     if loopsOfChunk != loopsOfChunkTrunk:
         loopsOfChunk = loopsOfChunkTrunk + 1
         # this will be how many loops we will have to send
-    print(loopsOfChunk)
+    print(f"Expecting {loopsOfChunk} chunks")
 
 
+    # Creating String to write recive from 
+    serverNeedToCensor = ''
+
+    # Going to recieve 
+    currentChunkIndex = 0
+    serverAckOutbound = "Chunk has been recieved!"
+
+    while currentChunkIndex < loopsOfChunk:
+        print(f"On Array Section {currentChunkIndex}")
+
+
+        # Recieving string in 1000 byte incriments
+        serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(65527)
+        inboundString = serverNeedToCensor.decode("utf-8")
+        #serverNeedToCensor = str(serverNeedToCensor) + str(inboundString)
+        print(serverNeedToCensor)
+
+        # Sending ACK
+        jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
+
+        # incriment
+        currentChunkIndex += 1    
+
+
+        #Writing to file
+        # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
+        with open(f"ServerSideTest__", 'a') as f:
+            print(inboundString, file=f)
+        
+        # cleanup
+        inboundString = ''
+    
 
 
 
