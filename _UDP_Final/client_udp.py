@@ -94,11 +94,14 @@ def chunkerFunction(string):
             arrayToSend.append(string[startCut:])
             break
 
+    return arrayToSend
+
 
 # -----
 # Socket Port and IP 
 
-SocketIP = returnIP()
+#SocketIP = returnIP()
+SocketIP = socket.gethostname()
 print(SocketIP)
 SocketPortNumber = returnPort()
 print(SocketPortNumber)
@@ -123,12 +126,9 @@ chunkBookmark = 0
 
 # Main Logic!
 
-
 # -----------
 # PUT COMMAND
 # -----------
-
-# while userCommandArray[0].lower() != 'quit':
 userCommand = input("Enter Command: ")
 
 # Split on String
@@ -137,6 +137,7 @@ userCommandArray = userCommand.split(' ', 1)
 print(f"User command: {userCommandArray[0]}")
 
 # quit condition
+
 if userCommandArray[0].lower() != 'quit':
     # opening file
     # https://docs.python.org/3/library/functions.html#open
@@ -145,131 +146,200 @@ if userCommandArray[0].lower() != 'quit':
     wholeFileToString = textToChange.read()
     textToChange.close()
 
-    print(f"The length of the file is: {len(wholeFileToString)}")
+    wholeFileToString.strip()
 
     # -----------
     # Need To Send Length to server
     # -----------
+    # Store Length to a variable
+    fileLengthVar = len(wholeFileToString)
+    wholeFileToStringLength = f"LEN:{(fileLengthVar)}"
+    print(f"The length of the file is: {wholeFileToStringLength}")
+    #print(wholeFileToStringLength.split(':', 1))
+
+    # Sending length of file to server first
+    jakeClientUDP.sendto(wholeFileToStringLength.encode(), (SocketIP, SocketPortNumber))
+
+    # find out how many chunks of 1000 you will send, ceiling it
+    # https://www.geeksforgeeks.org/floor-ceil-function-python/
+    lengthOfChunk = 1000
+    loopsOfChunk = fileLengthVar / lengthOfChunk
+    loopsOfChunkTrunk = int(loopsOfChunk)
+    print(loopsOfChunk)
+    print(loopsOfChunkTrunk)
+
+    #if original value and truncated value are not the same, we will increase truncated value by 1
+    if loopsOfChunk != loopsOfChunkTrunk:
+        loopsOfChunk = loopsOfChunkTrunk + 1
+        # this will be how many loops we will have to send
+    print(f"Expect {loopsOfChunk} loops")
+
+    # ----
+    # Chunk String
+    # ----
+    # append info to array
+    # https://www.freecodecamp.org/news/python-list-append-how-to-add-an-element-to-an-array-explained-with-examples/
+    user1000ByteArray = []
+
+    chunks = 0
+    starterPoint = 0
+    while chunks < loopsOfChunk:
+        
+        endPoint = starterPoint + lengthOfChunk
+        # appending
+        user1000ByteArray.append(wholeFileToString[starterPoint:endPoint])
+
+        print(f"On chunk: {chunks}, String to append is: {wholeFileToString[starterPoint:endPoint]}")
+        print("Array currently is:")
+        print(user1000ByteArray)
+
+        starterPoint = endPoint
+        chunks += 1
+
+
+    #----
+    # Sending over server chunks
+    # Waiting for server response
+    #----
+
+        # should start at user1000ByteArray[0]
+        # should end at user1000ByteArray[loopsOfChunk]
+    
+    
+# ---
+
+
+# ----
 
 
 
-    # sending original filename to server
-    #jakeClient.send(filePath.encode())
-    jakeClientUDP.sendto(filePath.encode(), (SocketIP, SocketPortNumber))
 
-    # sending put string to server
-    # assuming first string is always 'put'
-    jakeClient.send(wholeFileToString.encode())
-    print("Awaiting Server Response")
-
-    # Recieving confirmation back from server
-    confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
-    print(confirmationServer1)
-
-    # cleaning up
-    userCommand = ''
-    confirmationServer1 = ''
-else:
-    print('Quit Statement Active 1')
-    jakeClient.close()
-
-# # ---
+# ---------
 
 
 
-# ---------------
-# KEYWORD COMMAND
-# ---------------
-
-# prompting user for next command
-# also checking to see if quit command is not active
-if userCommandArray[0].lower() != 'quit':
-    userCommand = input("Enter command: ")
-
-#     # Split on String
-#     # https://www.tutorialspoint.com/python/string_split.htm
-    userCommandArray = userCommand.split(' ', 1)
-    print(f"User command: {userCommandArray[0]}")
-
-# quit condition
-if userCommandArray[0].lower() != 'quit':
-    print(userCommandArray[1])
 
 
-    # # --
+#     # sending original filename to server
+#     jakeClientUDP.sendto(filePath.encode(), (SocketIP, SocketPortNumber))
 
-    # # specifies phrase to censor & file to have server censor it on
-    # sends it to server
-    userCensorPhrase = userCommandArray[1]
-    jakeClient.send(userCensorPhrase.encode())
+#     # sending put string to server
+#     # assuming first string is always 'put'
+#     jakeClientUDP.sendto(wholeFileToString.encode(), (SocketIP, SocketPortNumber))
+#     print("Awaiting Server Response")
 
-    # Waiting for Server Response
-    print("Awaiting server response.")
+#     # Recieving confirmation back from server
+#     #confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
+#     confirmationServer1, serverAddress = jakeClientUDP.recvfrom(2048)
+#     print(confirmationServer1.decode("utf-8"))
 
-    # Recieving confirmation back from server
-    confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
-    print(confirmationServer1)
-
-    # cleaning up
-    userCommand = ''
-    userCommandArray = ['', '']
-    confirmationServer1 = ''
-else:
-    print('Quit Statement Active 2')
+#     # cleaning up
+#     userCommand = ''
+#     confirmationServer1 = ''
+# else:
+#     print('Quit Statement Active 1')
 
 
-# -----------
-# GET COMMAND
-# -----------
-
-# prompting user for next command
-if userCommandArray[0].lower() != 'quit':
-    userCommand = input("Enter command: ")
-
-userCommandArray = userCommand.split(' ', 1)
-print(f"User command: {userCommandArray[0]}")
-
-# quit condition
-if userCommandArray[0].lower() != 'quit':
-#     # Split on String
-#     # https://www.tutorialspoint.com/python/string_split.htm
-#     # ** break out into function
-
-    print(userCommandArray[1])
-
-    userGetRequest = userCommandArray[1]
-
-    # sending Get command and request for filename to server
-    jakeClient.send(userGetRequest.encode())
-
-    # Getting censored message back from server & printing out
-    # censoredMessage = jakeClient.recv(70000).decode("utf-8")
-    censoredMessage = jakeClient.recv(70000).decode()
-
-    print(censoredMessage)
-    print(f"Length of Censored Message 1: {len(censoredMessage)}")
-    # Getting Confirmaton of Download from server
-
-    # printing to standard out
-    # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
-    with open(f'client_{userGetRequest}', 'w') as f:
-            print(censoredMessage, file=f)
-
-    print(f"Length of Censored Message 2: {len(censoredMessage)}")
-
-        # clean up
-    censoredMessage = ''
-else:
-    print('Quit Statement Active 3')
+# # # ---
 
 
 
-    # -----------
-    # QUIT COMMAND
-    # -----------
-if userCommandArray[0].lower() != 'quit':
-    userCommand = input("Enter command: ")
-    print(f"User Command: {userCommand}")
-    print("Quitting...")
+# # ---------------
+# # KEYWORD COMMAND
+# # ---------------
 
-jakeClient.close()
+# # prompting user for next command
+# # also checking to see if quit command is not active
+# if userCommandArray[0].lower() != 'quit':
+#     userCommand = input("Enter command: ")
+
+# #     # Split on String
+# #     # https://www.tutorialspoint.com/python/string_split.htm
+#     userCommandArray = userCommand.split(' ', 1)
+#     print(f"User command: {userCommandArray[0]}")
+
+# # quit condition
+# if userCommandArray[0].lower() != 'quit':
+#     print(userCommandArray[1])
+
+
+#     # # --
+
+#     # # specifies phrase to censor & file to have server censor it on
+#     # sends it to server
+#     userCensorPhrase = userCommandArray[1]
+#     #jakeClient.send(userCensorPhrase.encode())
+#     jakeClientUDP.sendto(userCensorPhrase.encode(), (SocketIP, SocketPortNumber))
+
+#     # Waiting for Server Response
+#     print("Awaiting server response.")
+
+#     # Recieving confirmation back from server
+#     #confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
+#     confirmationServer1, serverAddress = jakeClientUDP.recvfrom(2048)
+#     print(confirmationServer1.decode("utf-8"))
+
+#     # cleaning up
+#     userCommand = ''
+#     userCommandArray = ['', '']
+#     confirmationServer1 = ''
+# else:
+#     print('Quit Statement Active 2')
+
+
+# # -----------
+# # GET COMMAND
+# # -----------
+
+# # prompting user for next command
+# if userCommandArray[0].lower() != 'quit':
+#     userCommand = input("Enter command: ")
+
+# userCommandArray = userCommand.split(' ', 1)
+# print(f"User command: {userCommandArray[0]}")
+
+# # quit condition
+# if userCommandArray[0].lower() != 'quit':
+# #     # Split on String
+# #     # https://www.tutorialspoint.com/python/string_split.htm
+# #     # ** break out into function
+
+#     print(userCommandArray[1])
+
+#     userGetRequest = userCommandArray[1]
+
+#     # sending Get command and request for filename to server
+#     #jakeClient.send(userGetRequest.encode())
+#     jakeClientUDP.sendto(userGetRequest.encode(), (SocketIP, SocketPortNumber))
+
+#     # Getting censored message back from server & printing out
+#     #censoredMessage = jakeClient.recv(70000).decode()
+#     censoredMessage, serverAddress = jakeClientUDP.recvfrom(65527)
+#     print(censoredMessage.decode("utf-8"))
+
+#     print(f"Length of Censored Message 1: {len(censoredMessage)}")
+#     # Getting Confirmaton of Download from server
+
+#     # printing to standard out
+#     # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
+#     with open(f'client_{userGetRequest}', 'w') as f:
+#             print(censoredMessage, file=f)
+
+#     print(f"Length of Censored Message 2: {len(censoredMessage)}")
+
+#         # clean up
+#     censoredMessage = ''
+# else:
+#     print('Quit Statement Active 3')
+
+
+
+#     # -----------
+#     # QUIT COMMAND
+#     # -----------
+# if userCommandArray[0].lower() != 'quit':
+#     userCommand = input("Enter command: ")
+#     print(f"User Command: {userCommand}")
+#     print("Quitting...")
+
+# jakeClientUDP.close()

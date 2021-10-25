@@ -12,7 +12,7 @@
  4) I'm not getting full length back the second time (it gives me full message first time, but only like 2/3 on second) Why?
  5) How do I quit out of a program at any time?  
 
- 6) For some reason, sometimes I need to put in my computers hostname (ie: SHODAN) instead of IP, why? It worked with the previous copy, but not here for some reason (specifically UDP) 
+ 6) Why are the '\\n' being stored instead of the carriage returns? I don't know how to fix that in transit!
  '''
 
 # Import libraries
@@ -20,11 +20,21 @@ import socket
 import sys
 
 
+# --
+# Functions
+
+# Gets length of string and creates the character to replace it with
+def myFindTargetString(targetPhase):
+    replacementString = ''
+    replacementChar = 'X'
+    for letters in targetPhase:
+        replacementString += replacementChar
+    return replacementString
+
+
 
 # importing Command line arguments - for IP and port numbers
 # https://cs.stanford.edu/people/nick/py/python-main.html
-
-
 def returnIP():
     incomingIP = sys.argv[1]
     return incomingIP
@@ -85,7 +95,7 @@ def chunkerFunction(string):
 # -----
 # Socket Port and IP 
 
-SocketIP = returnIP()
+#SocketIP = returnIP()
 SocketIP = socket.gethostname()
 print(SocketIP)
 SocketPortNumber = returnPort()
@@ -93,8 +103,14 @@ print(SocketPortNumber)
 
 
 
-jakeServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-jakeServer.bind((SocketIP, SocketPortNumber))
+#jakeServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+#jakeServer.bind((SocketIP, SocketPortNumber))
+# ---
+
+jakeServerUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+jakeServerUDP.bind((SocketIP, SocketPortNumber))
+
+# --
 
 
 # Variables
@@ -107,6 +123,9 @@ arrayToSend = []
 chunkBookmark = 0
 
 # added
+serverNeedToCensorLength = ''
+serverNeedToCensorLengthArray = ['', '']
+
 serverOriginalFileName = ''
 serverCensoredName = ''
 
@@ -120,147 +139,164 @@ serverGetRequest = ''
 serverFinalText = ''
 
 # ---
-
-# Functions
-
-# Gets length of string and creates the character to replace it with
-def myFindTargetString(targetPhase):
-    replacementString = ''
-    replacementChar = 'X'
-    for letters in targetPhase:
-        replacementString += replacementChar
-    return replacementString
-
-
-
+# Program logic
 # ---
 
-# Program logic
+
 # shows server is up and running
 print("The server is ready to receive")
 
-# buffer set to 5
-jakeServer.listen(5)
 
 # clientSocket, clientAddress = jakeServer.accept()
 # going to get data from client, loop until manually stoped
 while True:
 
-    clientSocket, clientAddress = jakeServer.accept()
-    print(f"Connection from {clientAddress} has been established.")
+    # Server prints this if it has been successfully created
+    print(f'The server is ready to receive on Hostname: {SocketIP}, Port: {SocketPortNumber}')
 
-    # -----------
-    # PUT COMMAND
-    # -----------
-
-
-    # Accepting original filename from client
-    # created new filename from original
-    serverOriginalFileName = clientSocket.recv(2048).decode()
-    serverCensoredName = "Anon" + serverOriginalFileName
-
-    # Accepting String that needs to be censored from client
-    # serverNeedToCensor = clientSocket.recv(2048).decode("utf-8")
-    serverNeedToCensor = clientSocket.recv(65527).decode()
-    print(f"String that needs to be censored is: {serverNeedToCensor}")
-    print(f"The length of the file is: {len(serverNeedToCensor)}")
+#     # -----------
+#     # PUT COMMAND
+#     # -----------
 
 
+    # Need to accept and print out length of incoming string
+    # Decoding and pushing it through to array, then displaying
+    serverNeedToCensorLength, clientAddress = jakeServerUDP.recvfrom(2048)
+    serverNeedToCensorLength = serverNeedToCensorLength.decode()
+    serverNeedToCensorLengthArray = (serverNeedToCensorLength).split(':', 1)
+    print(f"According to client, The length of the file is: {serverNeedToCensorLengthArray[1]}")
 
-    # Output sting to file
-    # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
-    #f = open("myfile.txt", "x")
-    with open(f'{serverOriginalFileName}_', 'w') as f:
-        print(serverNeedToCensor, file=f)
 
-    # send response back to client
-    messageRecieved = "Server response: File Uploaded"
-    clientSocket.send(messageRecieved.encode())
+    # find out how many chunks of 1000 you will send, ceiling it
+    # https://www.geeksforgeeks.org/floor-ceil-function-python/
+    lengthOfChunk = 1000
+    loopsOfChunk = float(serverNeedToCensorLengthArray[1]) / lengthOfChunk
+    loopsOfChunkTrunk = int(loopsOfChunk)
+    print(loopsOfChunk)
+    print(loopsOfChunkTrunk)
 
-    # cleaning up
-    messageRecieved = ''
+    #if original value and truncated value are not the same, we will increase truncated value by 1
+    if loopsOfChunk != loopsOfChunkTrunk:
+        loopsOfChunk = loopsOfChunkTrunk + 1
+        # this will be how many loops we will have to send
+    print(loopsOfChunk)
 
-    # ---------------
-    # KEYWORD COMMAND
-    # ---------------
 
-    # Accepting the word to censor from client
-    # AND target file's filename from client
-    serverKeywordData = clientSocket.recv(2048).decode()
-    serverKeywordArray = serverKeywordData.split(' ', 1)
 
-    serverSecretPhrase = serverKeywordArray[0]
-    print(f"Top Secret Word to censor is: {serverSecretPhrase}")
 
-    # check to see if serverKeywordArray[1] exits with if statement
-    serverKeywordFileName = serverKeywordArray[1]
-    print(f"Keyword Filename: {serverKeywordFileName}")
 
-    # creating string to replace target phrase with
-    serverReplacementString = myFindTargetString(serverSecretPhrase)
-    print(serverReplacementString)
+# ---------
+#     # Accepting original filename from client
+#     # created new filename from original
+#     serverOriginalFileName, clientAddress = jakeServerUDP.recvfrom(2048)
+#     serverCensoredName = "Anon" + serverOriginalFileName
 
-    # opening file
-    # https://docs.python.org/3/library/functions.html#open
-    textToChange = open(f"{serverKeywordFileName}_")
-    serverWholeFileToString = textToChange.read()
-    textToChange.close()
+#     # Accepting String that needs to be censored from client
+#     serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(65527)
+#     print(f"String that needs to be censored is: {serverNeedToCensor}")
+#     print(f"The length of the file is: {len(serverNeedToCensor)}")
 
-# ----
-    # Anonymize Logic here
-# ----
 
-    # Doing find and replace
-    # from https://www.geeksforgeeks.org/python-string-replace/
-    serverCensoredOutput = serverWholeFileToString.replace(
-        serverSecretPhrase, serverReplacementString)
 
-    # Output sting to file
-    # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
+#     # Output sting to file
+#     # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
+#     #f = open("myfile.txt", "x")
+#     with open(f'{serverOriginalFileName}_', 'w') as f:
+#         print(serverNeedToCensor, file=f)
+
+#     # send response back to client
+#     messageRecieved = "Server response: File Uploaded"
+#     ##clientSocket.send(messageRecieved.encode())
+#     jakeServerUDP.sendto(messageRecieved.encode(), clientAddress)
+
+#     # cleaning up
+#     messageRecieved = ''
+
+#     # ---------------
+#     # KEYWORD COMMAND
+#     # ---------------
+
+#     # Accepting the word to censor from client
+#     # AND target file's filename from client
+#     ##serverKeywordData = clientSocket.recv(2048).decode()
+#     serverKeywordData, clientAddress = jakeServerUDP.recvfrom(2048)
+#     serverKeywordArray = (serverKeywordData.decode()).split(' ', 1)
+
+#     serverSecretPhrase = serverKeywordArray[0]
+#     print(f"Top Secret Word to censor is: {serverSecretPhrase}")
+
+#     # check to see if serverKeywordArray[1] exits with if statement
+#     serverKeywordFileName = serverKeywordArray[1]
+#     print(f"Keyword Filename: {serverKeywordFileName}")
+
+#     # creating string to replace target phrase with
+#     serverReplacementString = myFindTargetString(serverSecretPhrase)
+#     print(serverReplacementString)
+
+#     # opening file
+#     # https://docs.python.org/3/library/functions.html#open
+#     textToChange = open(f"{serverKeywordFileName}_")
+#     serverWholeFileToString = textToChange.read()
+#     textToChange.close()
+
+# # ----
+#     # Anonymize Logic here
+# # ----
+
+#     # Doing find and replace
+#     # from https://www.geeksforgeeks.org/python-string-replace/
+#     serverCensoredOutput = serverWholeFileToString.replace(
+#         serverSecretPhrase, serverReplacementString)
+
+#     # Output sting to file
+#     # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
     
-    #f = open(f"{serverCensoredName}", "x")
-    with open(f"{serverCensoredName}", 'w') as f:
-        print(serverCensoredOutput, file=f)
+#     #f = open(f"{serverCensoredName}", "x")
+#     with open(f"{serverCensoredName}", 'w') as f:
+#         print(serverCensoredOutput, file=f)
 
-# ----
+# # ----
 
 
     
-    # send response back to client
-    # Sending back name of the new censored file
-    messageRecieved = f"Server response: File {serverKeywordFileName} has been anonymized. Output file is {serverCensoredName}"
-    clientSocket.send(messageRecieved.encode())
+#     # send response back to client
+#     # Sending back name of the new censored file
+#     messageRecieved = f"Server response: File {serverKeywordFileName} has been anonymized. Output file is {serverCensoredName}"
+#     ##clientSocket.send(messageRecieved.encode())
+#     jakeServerUDP.sendto(messageRecieved.encode(), clientAddress)
 
-    # maybe send as header?
-    #clientSocket.send(serverCensoredName.encode())
+#     # maybe send as header?
+#     #clientSocket.send(serverCensoredName.encode())
     
-    # -----------
-    # GET COMMAND
-    # -----------
+#     # -----------
+#     # GET COMMAND
+#     # -----------
 
-    # Recieving get command and checking to see if what the anon file is
-    serverGetRequest = clientSocket.recv(2048).decode()
+#     # Recieving get command and checking to see if what the anon file is
+#     ##serverGetRequest = clientSocket.recv(2048).decode()
+#     serverGetRequest, clientAddress = jakeServerUDP.recvfrom(2048)
 
-    print(serverGetRequest)
-    print(f"Get Request Recieved: Sending back censored output")
+#     print(serverGetRequest)
+#     print(f"Get Request Recieved: Sending back censored output")
 
-    print(f"The length of string output: {len(serverCensoredOutput)}")
-    #serverGetOutput = "Your Request was flawed"
+#     print(f"The length of string output: {len(serverCensoredOutput)}")
+#     #serverGetOutput = "Your Request was flawed"
 
-    # if the requested filename is the same as the anonymized file,
-    # then move contents to a string
-    # if serverGetRequest == serverCensoredName:
-    #     serverGetOutput = open(f"{serverCensoredName}")
-    #     serverFinalText = textToChange.read()
-    #     textToChange.close()
-    textToChange = open(serverCensoredName)
-    serverFinalText = textToChange.read()
-    print(f"Length of Text to Send to Client: {len(serverFinalText)}")
-    textToChange.close()
+#     # if the requested filename is the same as the anonymized file,
+#     # then move contents to a string
+#     # if serverGetRequest == serverCensoredName:
+#     #     serverGetOutput = open(f"{serverCensoredName}")
+#     #     serverFinalText = textToChange.read()
+#     #     textToChange.close()
+#     textToChange = open(serverCensoredName)
+#     serverFinalText = textToChange.read()
+#     print(f"Length of Text to Send to Client: {len(serverFinalText)}")
+#     textToChange.close()
 
-        
-    clientSocket.send(serverFinalText.encode())
-    #clientSocket.send(serverFinalText.encode("utf"))
+
+#     #Send back to user    
+#     ##clientSocket.send(serverFinalText.encode())
+#     jakeServerUDP.sendto(serverFinalText.encode(), clientAddress)
     
    
 
