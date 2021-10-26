@@ -380,8 +380,6 @@ while True:
         chunks += 1
 
     print("Got through Array If you see this")
-'''
-
 
 # -----
     #----
@@ -391,29 +389,30 @@ while True:
 
         # should start at user1000ByteArray[0]
         # should end at user1000ByteArray[loopsOfChunkOutbound]
-    
-    currentChunkIndex = 0
+   
+    serverCurrentChunkIndex = 0
     ifAcked = ''
     numChunksRecived = 0
 
-    while currentChunkIndex < loopsOfChunkOutbound:
-        print(f"On Array Section {currentChunkIndex}")
+    while serverCurrentChunkIndex < loopsOfChunkOutbound:
+        print(f"On Array Section {serverCurrentChunkIndex}")
 
 
-        #Sending to server
-        outboundString = str(user1000ByteArray[currentChunkIndex])
+        #Sending to client
+        outboundString = str(user1000ByteArray[serverCurrentChunkIndex])
         print(outboundString)
-        jakeClientUDP.sendto(outboundString.encode("utf-8"), (SocketIP, SocketPortNumber))
+        #jakeClientUDP.sendto(outboundString.encode("utf-8"), (SocketIP, SocketPortNumber))
+        jakeServerUDP.sendto(outboundString.encode("utf-8"), clientAddress)
 
         # wait for ACK
 
         print("Waiting for ACK")
-        ifAcked, clientAddress = jakeClientUDP.recvfrom(2048)
+        ifAcked, clientAddress = jakeServerUDP.recvfrom(2048)
         ifAcked = ifAcked.decode("utf-8")
         print(f"Server Says: {ifAcked}")
 
         # incriment
-        currentChunkIndex += 1
+        serverCurrentChunkIndex += 1
         numChunksRecived +=1
 
         # clean up
@@ -425,10 +424,10 @@ while True:
     ##TIMEOUT NEEDED
     ifFin = ''
     print("Waiting for FIN")
-    ifFin, clientAddress = jakeClientUDP.recvfrom(2048)
+    ifFin, clientAddress = jakeServerUDP.recvfrom(2048)
     ifFin = ifFin.decode()
-    print(f"Server Response: {ifFin}")
-
+    print(f"Client Response: {ifFin}")
+'''
 '''
 
 

@@ -115,8 +115,7 @@ jakeClientUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # Variables
 userCommand = ''
 userCommandArray = ['', '']
-lengthOfChunk = 1000
-getLengthOfChunk = 1000
+
 
 # creating array to append seperate strings to
 # https://www.kite.com/python/answers/how-to-make-an-array-of-strings-in-python
@@ -127,18 +126,15 @@ chunkBookmark = 0
 
 # Main Logic!
 
-# ----
-# # -----------
-# # PUT COMMAND
-# # -----------
-# ----
+# -----------
+# PUT COMMAND
+# -----------
 userCommand = input("Enter Command: ")
 
 # Split on String
 # https://www.tutorialspoint.com/python/string_split.htm
 userCommandArray = userCommand.split(' ', 1)
 print(f"User command: {userCommandArray[0]}")
-#print(f"File name is: {userCommandArray[1]}")
 
 # quit condition
 
@@ -159,13 +155,14 @@ if userCommandArray[0].lower() != 'quit':
     fileLengthVar = len(wholeFileToString)
     wholeFileToStringLength = f"LEN:{(fileLengthVar)}"
     print(f"The length of the file is: {wholeFileToStringLength}")
+    #print(wholeFileToStringLength.split(':', 1))
 
     # Sending length of file to server first
     jakeClientUDP.sendto(wholeFileToStringLength.encode(), (SocketIP, SocketPortNumber))
 
     # find out how many chunks of 1000 you will send, ceiling it
     # https://www.geeksforgeeks.org/floor-ceil-function-python/
-    #lengthOfChunk = 1000
+    lengthOfChunk = 1000
     loopsOfChunk = fileLengthVar / lengthOfChunk
     loopsOfChunkTrunk = int(loopsOfChunk)
     print(loopsOfChunk)
@@ -245,170 +242,10 @@ if userCommandArray[0].lower() != 'quit':
     ifFin = ifFin.decode()
     print(f"Server Response: {ifFin}")
 
-
-    
-# ----
-# # ---------------
-# # KEYWORD COMMAND
-# # ---------------
-# ----
-
-# prompting user for next command
-# also checking to see if quit command is not already active
-if userCommandArray[0].lower() != 'quit':
-    userCommand = input("Enter command: ")
-
-    # Split on String
-    # https://www.tutorialspoint.com/python/string_split.htm
-    userCommandArray = userCommand.split(' ', 1)
-    print(f"User command: {userCommandArray[0]}")
-
-# quit condition (from keyword command input)
-if userCommandArray[0].lower() != 'quit':
-    print(userCommandArray[1])
-
-    # specifies phrase to censor & file to have server censor it on
-    # sends it to server
-    #userCensorPhrase = userCommandArray[1]
-    jakeClientUDP.sendto(str(userCommandArray[1]).encode("utf-8"), (SocketIP, SocketPortNumber))
-
-    # Waiting for Server Response
-    print("Awaiting server response.")
-
-    # Recieving confirmation back from server
-    confirmationServer1, serverAddress = jakeClientUDP.recvfrom(2048)
-    print(confirmationServer1.decode("utf-8"))
-
-    # cleaning up
-    userCommand = ''
-    userCommandArray = ['', '']
-    confirmationServer1 = ''
-else:
-    print('Quit Statement Active 2')
+# ---
 
 
 # ----
-# # -----------
-# # GET COMMAND
-# # -----------
-# ----
-
-# prompting user for next command
-if userCommandArray[0].lower() != 'quit':
-    userCommand = input("Enter command: ")
-
-userCommandArray = userCommand.split(' ', 1)
-print(f"User command: {userCommandArray[0]}")
-
-# quit condition
-if userCommandArray[0].lower() != 'quit':
-    # Split on String
-    # https://www.tutorialspoint.com/python/string_split.htm
-
-    userGetRequest = str(userCommandArray[1])
-    print(f"Sending Request for file: {userGetRequest}")
-
-    
-
-    # sending Get command and request for filename to server
-    jakeClientUDP.sendto(userGetRequest.encode("utf-8"), (SocketIP, SocketPortNumber))
-
-
-    # Need to accept and print out length of incoming string
-    # Decoding and pushing it through to array, then displaying
-    incomingStringLength, clientAddress = jakeClientUDP.recvfrom(2048)
-    incomingStringLength = incomingStringLength.decode("utf-8")
-
-    incomingStringLengthArray = (incomingStringLength).split(':', 1)
-    print(incomingStringLengthArray)
-    print(f"According to server, The length of the file is: {incomingStringLengthArray[1]}")
-    # TIMEOUT NEEDED IF LENGTH NOT RECIEVED
-# ----
-
-    # find out how many chunks of 1000 you will send, ceiling it
-    # https://www.geeksforgeeks.org/floor-ceil-function-python/
-    #getLengthOfChunk = 1000
-    getLoopsOfChunk = float(incomingStringLengthArray[1]) / getLengthOfChunk
-    getLoopsOfChunkTrunk = int(getLoopsOfChunk)
-    print(getLoopsOfChunk)
-    print(getLoopsOfChunkTrunk)
-
-    #if original value and truncated value are not the same, we will increase truncated value by 1
-    if getLoopsOfChunk != getLoopsOfChunkTrunk:
-        getLoopsOfChunk = getLoopsOfChunkTrunk + 1
-        # this will be how many loops we will have to send
-    print(f"Expecting {getLoopsOfChunk} chunks")
-
-
-# -----
-'''
-    # Creating String to write recive from 
-    clientCensoredMessage = ''
-
-    # Going to recieve 
-    clientCurrentChunkIndex = 0
-    clientAckOutbound = "Chunk has been recieved!"
-
-    while clientCurrentChunkIndex < getLoopsOfChunk:
-        print(f"On Array Section {clientCurrentChunkIndex}")
-
-
-        # Recieving string in 1000 byte incriments
-        clientCensoredMessage, clientAddress = jakeClientUDP.recvfrom(65527)
-        clientInboundString = clientCensoredMessage.decode("utf-8")
-        
-
-        # Sending ACK
-        jakeClientUDP.sendto(clientAckOutbound.encode("utf-8"), (SocketIP, SocketPortNumber))
-
-        # Server Side File Storage
-        #ServerSideFileName = "ServerSideFile__" + str(getLoopsOfChunk) #+ ".txt"
-
-
-        if clientCurrentChunkIndex == 0:
-
-            # Creating File
-            # Overwrite previous file with same name (so we don't accidentally append to it)
-            with open(f"client_{userGetRequest}", 'w') as f:
-                print(clientInboundString, file=f)
-
-            # cleanup
-            clientInboundString = ''
-                
-            
-        else:
-
-            #Writing to file
-            # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
-            with open(f"client_{userGetRequest}", 'a') as f:
-                print(clientInboundString, file=f)
-        
-
-        # incriment
-        clientCurrentChunkIndex += 1 
-
-        # cleanup
-        clientInboundString = ''
-
-        
-
-
-    # Send Fin String to client
-    finMessageToServer = 'Progress To Next Step'
-
-
-'''
-
-
-
-
-
-
-
-
-
-
-
 
 
 
