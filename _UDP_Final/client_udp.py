@@ -158,7 +158,6 @@ if userCommandArray[0].lower() != 'quit':
     fileLengthVar = len(wholeFileToString)
     wholeFileToStringLength = f"LEN:{(fileLengthVar)}"
     print(f"The length of the file is: {wholeFileToStringLength}")
-    #print(wholeFileToStringLength.split(':', 1))
 
     # Sending length of file to server first
     jakeClientUDP.sendto(wholeFileToStringLength.encode(), (SocketIP, SocketPortNumber))
@@ -269,27 +268,58 @@ if userCommandArray[0].lower() != 'quit':
 
     # specifies phrase to censor & file to have server censor it on
     # sends it to server
-    userCensorPhrase = userCommandArray[1]
-    jakeClientUDP.sendto(userCensorPhrase.encode("utf-8"), (SocketIP, SocketPortNumber))
+    #userCensorPhrase = userCommandArray[1]
+    jakeClientUDP.sendto(str(userCommandArray[1]).encode("utf-8"), (SocketIP, SocketPortNumber))
 
-#     # Waiting for Server Response
-#     print("Awaiting server response.")
+    # Waiting for Server Response
+    print("Awaiting server response.")
 
-#     # Recieving confirmation back from server
-#     #confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
-#     confirmationServer1, serverAddress = jakeClientUDP.recvfrom(2048)
-#     print(confirmationServer1.decode("utf-8"))
+    # Recieving confirmation back from server
+    confirmationServer1, serverAddress = jakeClientUDP.recvfrom(2048)
+    print(confirmationServer1.decode("utf-8"))
 
-#     # cleaning up
-#     userCommand = ''
-#     userCommandArray = ['', '']
-#     confirmationServer1 = ''
-# else:
-#     print('Quit Statement Active 2')
-
+    # cleaning up
+    userCommand = ''
+    userCommandArray = ['', '']
+    confirmationServer1 = ''
+else:
+    print('Quit Statement Active 2')
 
 
+# ----
+# # -----------
+# # GET COMMAND
+# # -----------
+# ----
 
+# prompting user for next command
+if userCommandArray[0].lower() != 'quit':
+    userCommand = input("Enter command: ")
+
+userCommandArray = userCommand.split(' ', 1)
+print(f"User command: {userCommandArray[0]}")
+
+# quit condition
+if userCommandArray[0].lower() != 'quit':
+    # Split on String
+    # https://www.tutorialspoint.com/python/string_split.htm
+
+    print(f"Sending Request for file: {userCommandArray[1]}")
+
+    userGetRequest = str(userCommandArray[1])
+
+    # sending Get command and request for filename to server
+    jakeClientUDP.sendto(userGetRequest.encode("utf-8"), (SocketIP, SocketPortNumber))
+
+
+    # Need to accept and print out length of incoming string
+    # Decoding and pushing it through to array, then displaying
+    incomingStringLength, clientAddress = jakeClientUDP.recvfrom(2048)
+    incomingStringLength = incomingStringLength.decode("utf-8")
+
+    incomingStringLengthArray = (incomingStringLength).split(':', 1)
+    print(incomingStringLengthArray)
+    print(f"According to server, The length of the file is: {incomingStringLengthArray[1]}")
 
 
 

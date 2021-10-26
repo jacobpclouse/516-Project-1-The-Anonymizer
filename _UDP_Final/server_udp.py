@@ -13,6 +13,8 @@
  5) How do I quit out of a program at any time?  
 
  6) Why are the '\\n' being stored instead of the carriage returns? I don't know how to fix that in transit!
+ 
+ 7) How do we specify python 3 on the server?
  '''
 
 # Import libraries
@@ -116,6 +118,8 @@ jakeServerUDP.bind((SocketIP, SocketPortNumber))
 # Variables
 serverNeedToCensor = ''
 serverSecretPhrase = ''
+lengthOfChunk = 1000
+lengthOfChunkOutbound = 1000
 
 # creating array to append seperate strings to
 # https://www.kite.com/python/answers/how-to-make-an-array-of-strings-in-python
@@ -170,7 +174,7 @@ while True:
 
     # find out how many chunks of 1000 you will send, ceiling it
     # https://www.geeksforgeeks.org/floor-ceil-function-python/
-    lengthOfChunk = 1000
+    #lengthOfChunk = 1000
     loopsOfChunk = float(serverNeedToCensorLengthArray[1]) / lengthOfChunk
     loopsOfChunkTrunk = int(loopsOfChunk)
     print(loopsOfChunk)
@@ -201,9 +205,6 @@ while True:
 
         # Sending ACK
         jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
-
-        # incriment
-        #currentChunkIndex += 1    
 
 
         # Server Side File Storage
@@ -305,10 +306,146 @@ while True:
     with open(f"{serverCensoredName}", 'a') as f:
         print(serverCensoredOutput, file=f)
 
+    
+    # send response back to client
+    # Sending back name of the new censored file
+    messageRecieved = f"Server response: File {serverKeywordFileName} has been anonymized. Output file is {serverCensoredName}"
+    print(messageRecieved)
+    jakeServerUDP.sendto(messageRecieved.encode(), clientAddress)
 
-    # finishing up and Sending response back to client
-    print("File Written Successfully")
-# # ----
+
+    # -----------
+    # Need To Determine Length of string to Send to client
+    # Will Send to Client after GET request
+    # -----------
+
+    # Store Length to a variable
+    fileLengthVar = len(serverCensoredOutput)
+    wholeFileToStringLength = f"LEN:{(fileLengthVar)}" #***SEND THIS TO CLIENT
+    print(f"The length of the file is: {wholeFileToStringLength}")
+
+    # find out how many chunks of 1000 you will send, ceiling it
+    # https://www.geeksforgeeks.org/floor-ceil-function-python/
+    #lengthOfChunkOutbound = 1000
+    loopsOfChunkOutbound = fileLengthVar / lengthOfChunkOutbound
+    loopsOfChunkOutboundTrunk = int(loopsOfChunkOutbound)
+    print(loopsOfChunkOutbound)
+    print(loopsOfChunkOutboundTrunk)
+
+    #if original value and truncated value are not the same, we will increase truncated value by 1
+    if loopsOfChunkOutbound != loopsOfChunkOutboundTrunk:
+        loopsOfChunkOutbound = loopsOfChunkOutboundTrunk + 1
+        # this will be how many loops we will have to send
+    print(f"Expect {loopsOfChunkOutbound} loops")
+
+
+
+# ------
+
+    # -----------
+    # GET COMMAND
+    # -----------
+
+    # Recieving Get request from user
+    serverGetRequest, clientAddress = jakeServerUDP.recvfrom(2048)
+    serverGetRequest = serverGetRequest.decode("utf-8")
+    print(f"Get Request Recieved: {serverGetRequest}")
+
+    # Sending length of file to client first
+    jakeServerUDP.sendto(wholeFileToStringLength.encode(), clientAddress)
+    print("Length Var Sent to Client")
+
+
+
+'''
+    # ----
+    # Chunk String
+    # ----
+    # append info to array
+    # https://www.freecodecamp.org/news/python-list-append-how-to-add-an-element-to-an-array-explained-with-examples/
+    user1000ByteArray = []
+
+    chunks = 0
+    starterPoint = 0
+    while chunks < loopsOfChunkOutbound:
+        
+        endPoint = starterPoint + lengthOfChunk
+        # appending
+        user1000ByteArray.append(serverCensoredOutput[starterPoint:endPoint])
+
+        print(f"On chunk: {chunks}, String to append is: {serverCensoredOutput[starterPoint:endPoint]}")
+        print("Array currently is:")
+        print(user1000ByteArray)
+
+        starterPoint = endPoint
+        chunks += 1
+
+
+
+
+# -----
+    #----
+    # Sending over client chunks
+    # Waiting for client response
+    #----
+
+        # should start at user1000ByteArray[0]
+        # should end at user1000ByteArray[loopsOfChunkOutbound]
+    
+    currentChunkIndex = 0
+    ifAcked = ''
+    numChunksRecived = 0
+
+    while currentChunkIndex < loopsOfChunkOutbound:
+        print(f"On Array Section {currentChunkIndex}")
+
+
+        #Sending to server
+        outboundString = str(user1000ByteArray[currentChunkIndex])
+        print(outboundString)
+        jakeClientUDP.sendto(outboundString.encode("utf-8"), (SocketIP, SocketPortNumber))
+
+        # wait for ACK
+
+        print("Waiting for ACK")
+        ifAcked, clientAddress = jakeClientUDP.recvfrom(2048)
+        ifAcked = ifAcked.decode("utf-8")
+        print(f"Server Says: {ifAcked}")
+
+        # incriment
+        currentChunkIndex += 1
+        numChunksRecived +=1
+
+        # clean up
+        ifAcked = ''
+
+    print(numChunksRecived)
+    
+    # Need to wait until recieve FIN Message from 
+    ##TIMEOUT NEEDED
+    ifFin = ''
+    print("Waiting for FIN")
+    ifFin, clientAddress = jakeClientUDP.recvfrom(2048)
+    ifFin = ifFin.decode()
+    print(f"Server Response: {ifFin}")
+
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -320,87 +457,7 @@ while True:
 
 
 # ---------
-#     # Accepting original filename from client
-#     # created new filename from original
-#     serverOriginalFileName, clientAddress = jakeServerUDP.recvfrom(2048)
-#     serverCensoredName = "Anon" + serverOriginalFileName
 
-#     # Accepting String that needs to be censored from client
-#     serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(65527)
-#     print(f"String that needs to be censored is: {serverNeedToCensor}")
-#     print(f"The length of the file is: {len(serverNeedToCensor)}")
-
-
-
-#     # Output sting to file
-#     # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
-#     #f = open("myfile.txt", "x")
-#     with open(f'{serverOriginalFileName}_', 'w') as f:
-#         print(serverNeedToCensor, file=f)
-
-#     # send response back to client
-#     messageRecieved = "Server response: File Uploaded"
-#     ##clientSocket.send(messageRecieved.encode())
-#     jakeServerUDP.sendto(messageRecieved.encode(), clientAddress)
-
-#     # cleaning up
-#     messageRecieved = ''
-
-#     # ---------------
-#     # KEYWORD COMMAND
-#     # ---------------
-
-#     # Accepting the word to censor from client
-#     # AND target file's filename from client
-
-#     serverKeywordData, clientAddress = jakeServerUDP.recvfrom(2048)
-#     serverKeywordArray = (serverKeywordData.decode()).split(' ', 1)
-
-#     serverSecretPhrase = serverKeywordArray[0]
-#     print(f"Top Secret Word to censor is: {serverSecretPhrase}")
-
-#     # check to see if serverKeywordArray[1] exits with if statement
-#     serverKeywordFileName = serverKeywordArray[1]
-#     print(f"Keyword Filename: {serverKeywordFileName}")
-
-#     # creating string to replace target phrase with
-#     serverReplacementString = myFindTargetString(serverSecretPhrase)
-#     print(serverReplacementString)
-
-#     # opening file
-#     # https://docs.python.org/3/library/functions.html#open
-#     textToChange = open(f"{serverKeywordFileName}_")
-#     serverWholeFileToString = textToChange.read()
-#     textToChange.close()
-
-# # ----
-#     # Anonymize Logic here
-# # ----
-
-#     # Doing find and replace
-#     # from https://www.geeksforgeeks.org/python-string-replace/
-#     serverCensoredOutput = serverWholeFileToString.replace(
-#         serverSecretPhrase, serverReplacementString)
-
-#     # Output sting to file
-#     # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
-    
-#     #f = open(f"{serverCensoredName}", "x")
-#     with open(f"{serverCensoredName}", 'w') as f:
-#         print(serverCensoredOutput, file=f)
-
-# # ----
-
-
-    
-#     # send response back to client
-#     # Sending back name of the new censored file
-#     messageRecieved = f"Server response: File {serverKeywordFileName} has been anonymized. Output file is {serverCensoredName}"
-#     ##clientSocket.send(messageRecieved.encode())
-#     jakeServerUDP.sendto(messageRecieved.encode(), clientAddress)
-
-#     # maybe send as header?
-#     #clientSocket.send(serverCensoredName.encode())
     
 #     # -----------
 #     # GET COMMAND
