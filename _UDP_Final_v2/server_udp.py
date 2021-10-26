@@ -427,66 +427,24 @@ while True:
     ifFin, clientAddress = jakeServerUDP.recvfrom(2048)
     ifFin = ifFin.decode()
     print(f"Client Response: {ifFin}")
+
+
+# If you read all the comments up to here, man that is some dedication
+# The gang of Sesame Street wants to congradulate you:
+
 '''
+   . -- .
+  (      )
+ ( (/oo\) )
+  ( \''/ )                               WW
+   ( \/ )      wwwwww                   /__\
+  (      )   w"ww  ww"w                | oo |   _WWWWW_
+ (        ) W   o""o   W    (o)(o)    (|_()_|) /  o o  \   (+)(+)
+(          )W  ______  W  w"      "w    \__/ (|  __O__  |)/      \
+ (        ) "w \_\/_/ w" W  -====-  W  /|\/|\  \ \___/ /  \ -==- /
+   ' -- '  ww""wwwwww""ww "w      w"  |||||||| /-------\   \    /
+    =  =    |||||||||||| w""""""""""w |||||||||=========| <\/\/\/>
+    =  =    ||||||||||||W            W|||||||||=========| /      \
 '''
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ---------
-
-    
-#     # -----------
-#     # GET COMMAND
-#     # -----------
-
-#     # Recieving get command and checking to see if what the anon file is
-#     ##serverGetRequest = clientSocket.recv(2048).decode()
-#     serverGetRequest, clientAddress = jakeServerUDP.recvfrom(2048)
-
-#     print(serverGetRequest)
-#     print(f"Get Request Recieved: Sending back censored output")
-
-#     print(f"The length of string output: {len(serverCensoredOutput)}")
-#     #serverGetOutput = "Your Request was flawed"
-
-#     # if the requested filename is the same as the anonymized file,
-#     # then move contents to a string
-#     # if serverGetRequest == serverCensoredName:
-#     #     serverGetOutput = open(f"{serverCensoredName}")
-#     #     serverFinalText = textToChange.read()
-#     #     textToChange.close()
-#     textToChange = open(serverCensoredName)
-#     serverFinalText = textToChange.read()
-#     print(f"Length of Text to Send to Client: {len(serverFinalText)}")
-#     textToChange.close()
-
-
-#     #Send back to user    
-#     ##clientSocket.send(serverFinalText.encode())
-#     jakeServerUDP.sendto(serverFinalText.encode(), clientAddress)
-    
-   
-
+# ASCII Art from ASCII Art Archive @ https://www.asciiart.eu/television/sesame-street

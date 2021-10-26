@@ -361,8 +361,6 @@ if userCommandArray[0].lower() != 'quit':
         # Sending ACK
         jakeClientUDP.sendto(clientAckOutbound.encode("utf-8"), (SocketIP, SocketPortNumber))
 
-        # Server Side File Storage
-        #ServerSideFileName = "ServerSideFile__" + str(getLoopsOfChunk) #+ ".txt"
 
 
         if clientCurrentChunkIndex == 0:
@@ -394,153 +392,23 @@ if userCommandArray[0].lower() != 'quit':
 
 
     # Send Fin String to client
-    finMessageToServer = 'Message Recieved!'
+    finMessageToServer = 'Full Message Recieved!'
     jakeClientUDP.sendto(finMessageToServer.encode("utf-8"), (SocketIP, SocketPortNumber))
 
 
+
+
+# -----------
+# QUIT COMMAND
+# -----------
+
+
+if userCommandArray[0].lower() != 'quit':
+    userCommand = input("Enter command: ")
+    print(f"User Command: {userCommand}")
+    print("Quitting...")
 '''
-'''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ---------
-
-
-
-
-
-#     # sending original filename to server
-#     jakeClientUDP.sendto(filePath.encode(), (SocketIP, SocketPortNumber))
-
-#     # sending put string to server
-#     # assuming first string is always 'put'
-#     jakeClientUDP.sendto(wholeFileToString.encode(), (SocketIP, SocketPortNumber))
-#     print("Awaiting Server Response")
-
-#     # Recieving confirmation back from server
-#     #confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
-#     confirmationServer1, serverAddress = jakeClientUDP.recvfrom(2048)
-#     print(confirmationServer1.decode("utf-8"))
-
-#     # cleaning up
-#     userCommand = ''
-#     confirmationServer1 = ''
-# else:
-#     print('Quit Statement Active 1')
-
-
-# # # ---
-
-
-
-# # ---------------
-# # KEYWORD COMMAND
-# # ---------------
-
-# # prompting user for next command
-# # also checking to see if quit command is not active
-# if userCommandArray[0].lower() != 'quit':
-#     userCommand = input("Enter command: ")
-
-# #     # Split on String
-# #     # https://www.tutorialspoint.com/python/string_split.htm
-#     userCommandArray = userCommand.split(' ', 1)
-#     print(f"User command: {userCommandArray[0]}")
-
-# # quit condition
-# if userCommandArray[0].lower() != 'quit':
-#     print(userCommandArray[1])
-
-
-#     # # --
-
-#     # # specifies phrase to censor & file to have server censor it on
-#     # sends it to server
-#     userCensorPhrase = userCommandArray[1]
-#     #jakeClient.send(userCensorPhrase.encode())
-#     jakeClientUDP.sendto(userCensorPhrase.encode(), (SocketIP, SocketPortNumber))
-
-#     # Waiting for Server Response
-#     print("Awaiting server response.")
-
-#     # Recieving confirmation back from server
-#     #confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
-#     confirmationServer1, serverAddress = jakeClientUDP.recvfrom(2048)
-#     print(confirmationServer1.decode("utf-8"))
-
-#     # cleaning up
-#     userCommand = ''
-#     userCommandArray = ['', '']
-#     confirmationServer1 = ''
-# else:
-#     print('Quit Statement Active 2')
-
-
-# # -----------
-# # GET COMMAND
-# # -----------
-
-# # prompting user for next command
-# if userCommandArray[0].lower() != 'quit':
-#     userCommand = input("Enter command: ")
-
-# userCommandArray = userCommand.split(' ', 1)
-# print(f"User command: {userCommandArray[0]}")
-
-# # quit condition
-# if userCommandArray[0].lower() != 'quit':
-# #     # Split on String
-# #     # https://www.tutorialspoint.com/python/string_split.htm
-# #     # ** break out into function
-
-#     print(userCommandArray[1])
-
-#     userGetRequest = userCommandArray[1]
-
-#     # sending Get command and request for filename to server
-#     #jakeClient.send(userGetRequest.encode())
-#     jakeClientUDP.sendto(userGetRequest.encode(), (SocketIP, SocketPortNumber))
-
-#     # Getting censored message back from server & printing out
-#     #censoredMessage = jakeClient.recv(70000).decode()
-#     censoredMessage, serverAddress = jakeClientUDP.recvfrom(65527)
-#     print(censoredMessage.decode("utf-8"))
-
-#     print(f"Length of Censored Message 1: {len(censoredMessage)}")
-#     # Getting Confirmaton of Download from server
-
-#     # printing to standard out
-#     # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
-#     with open(f'client_{userGetRequest}', 'w') as f:
-#             print(censoredMessage, file=f)
-
-#     print(f"Length of Censored Message 2: {len(censoredMessage)}")
-
-#         # clean up
-#     censoredMessage = ''
-# else:
-#     print('Quit Statement Active 3')
-
-
-
-#     # -----------
-#     # QUIT COMMAND
-#     # -----------
-# if userCommandArray[0].lower() != 'quit':
-#     userCommand = input("Enter command: ")
-#     print(f"User Command: {userCommand}")
-#     print("Quitting...")
-
 # jakeClientUDP.close()
+'''
+
+
