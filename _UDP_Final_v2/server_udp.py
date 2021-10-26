@@ -12,9 +12,15 @@
  4) I'm not getting full length back the second time (it gives me full message first time, but only like 2/3 on second) Why?
  5) How do I quit out of a program at any time?  
 
- 6) Why are the '\\n' being stored instead of the carriage returns? I don't know how to fix that in transit!
- 
+ 6) Can we create files on the server side?
+
  7) How do we specify python 3 on the server?
+
+
+ TEST ON VM!!!
+ 8) How to log in to VM with SSH? or WINSCP?
+
+ 9) For the report, are their any specific topics you want us to touch on (ie: forumlas, protocols, etc)
  '''
 
 # Import libraries
