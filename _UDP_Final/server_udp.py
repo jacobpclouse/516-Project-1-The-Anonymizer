@@ -197,24 +197,90 @@ while True:
         # Recieving string in 1000 byte incriments
         serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(65527)
         inboundString = serverNeedToCensor.decode("utf-8")
-        #serverNeedToCensor = str(serverNeedToCensor) + str(inboundString)
-        print(serverNeedToCensor)
+        #print(serverNeedToCensor)
 
         # Sending ACK
         jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
 
         # incriment
-        currentChunkIndex += 1    
+        #currentChunkIndex += 1    
 
 
-        #Writing to file
+        # Server Side File Storage
+        ServerSideFileName = "ServerSideTest__" + str(loopsOfChunk) + ".txt"
+
+
+        if currentChunkIndex == 0:
+
+            # Creating File
+            # Overwrite previous file with same name (so we don't accidentally append to it)
+            with open(f"{ServerSideFileName}", 'w') as f:
+                print(inboundString, file=f)
+
+            # cleanup
+            inboundString = ''
+                
+            
+        else:
+
+            #Writing to file
         # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
-        with open(f"ServerSideTest__", 'a') as f:
-            print(inboundString, file=f)
+            with open(f"{ServerSideFileName}", 'a') as f:
+                print(inboundString, file=f)
         
+
+        # incriment
+        currentChunkIndex += 1 
+
         # cleanup
         inboundString = ''
+
+        
+
+
+    # Send Fin String to client
+    finMessageToClient = 'Progress To Next Step'
+
+    # checking to see if the number of chunks we got was equal to the number we expected
+    if currentChunkIndex == loopsOfChunk:
+        print("Number of Chunks Recieved == Number of Chunks Expected")
     
+        jakeServerUDP.sendto(finMessageToClient.encode(), clientAddress)
+
+    ##TIMEOUT - Need to put an else here if the number of packets doesn't match up
+
+
+    # ---------------
+    # KEYWORD COMMAND
+    # ---------------
+
+    # Accepting the word to censor from client
+    # AND target file's filename from client
+
+    serverKeywordData, clientAddress = jakeServerUDP.recvfrom(2048)
+    serverKeywordArray = (serverKeywordData.decode()).split(' ', 1)
+
+    # Getting Phase to Censor
+    serverSecretPhrase = serverKeywordArray[0]
+    print(f"Top Secret Word to censor is: {serverSecretPhrase}")
+
+
+    # Getting Original Name of file, will use to rename new text
+            # check to see if serverKeywordArray[1] exits with if statement
+    serverKeywordFileName = serverKeywordArray[1]
+    print(f"Keyword Filename: {serverKeywordFileName}")
+    serverCensoredName = "Anon" + str(serverKeywordFileName) + "UDP.txt"
+    print(serverCensoredName)
+
+    # creating string to replace target phrase with
+    serverReplacementString = myFindTargetString(serverSecretPhrase)
+    print(f"Replacement String will be: {serverReplacementString}")
+
+
+
+
+
+
 
 
 
@@ -251,7 +317,7 @@ while True:
 
 #     # Accepting the word to censor from client
 #     # AND target file's filename from client
-#     ##serverKeywordData = clientSocket.recv(2048).decode()
+
 #     serverKeywordData, clientAddress = jakeServerUDP.recvfrom(2048)
 #     serverKeywordArray = (serverKeywordData.decode()).split(' ', 1)
 

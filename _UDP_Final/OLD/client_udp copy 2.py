@@ -126,18 +126,15 @@ chunkBookmark = 0
 
 # Main Logic!
 
-# ----
-# # -----------
-# # PUT COMMAND
-# # -----------
-# ----
+# -----------
+# PUT COMMAND
+# -----------
 userCommand = input("Enter Command: ")
 
 # Split on String
 # https://www.tutorialspoint.com/python/string_split.htm
 userCommandArray = userCommand.split(' ', 1)
 print(f"User command: {userCommandArray[0]}")
-#print(f"File name is: {userCommandArray[1]}")
 
 # quit condition
 
@@ -245,62 +242,10 @@ if userCommandArray[0].lower() != 'quit':
     ifFin = ifFin.decode()
     print(f"Server Response: {ifFin}")
 
+# ---
 
-    
+
 # ----
-# # ---------------
-# # KEYWORD COMMAND
-# # ---------------
-# ----
-
-# prompting user for next command
-# also checking to see if quit command is not already active
-if userCommandArray[0].lower() != 'quit':
-    userCommand = input("Enter command: ")
-
-    # Split on String
-    # https://www.tutorialspoint.com/python/string_split.htm
-    userCommandArray = userCommand.split(' ', 1)
-    print(f"User command: {userCommandArray[0]}")
-
-# quit condition (from keyword command input)
-if userCommandArray[0].lower() != 'quit':
-    print(userCommandArray[1])
-
-    # specifies phrase to censor & file to have server censor it on
-    # sends it to server
-#     userCensorPhrase = userCommandArray[1]
-#     #jakeClient.send(userCensorPhrase.encode())
-#     jakeClientUDP.sendto(userCensorPhrase.encode(), (SocketIP, SocketPortNumber))
-
-#     # Waiting for Server Response
-#     print("Awaiting server response.")
-
-#     # Recieving confirmation back from server
-#     #confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
-#     confirmationServer1, serverAddress = jakeClientUDP.recvfrom(2048)
-#     print(confirmationServer1.decode("utf-8"))
-
-#     # cleaning up
-#     userCommand = ''
-#     userCommandArray = ['', '']
-#     confirmationServer1 = ''
-# else:
-#     print('Quit Statement Active 2')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
