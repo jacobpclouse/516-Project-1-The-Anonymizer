@@ -269,9 +269,8 @@ if userCommandArray[0].lower() != 'quit':
 
     # specifies phrase to censor & file to have server censor it on
     # sends it to server
-#     userCensorPhrase = userCommandArray[1]
-#     #jakeClient.send(userCensorPhrase.encode())
-#     jakeClientUDP.sendto(userCensorPhrase.encode(), (SocketIP, SocketPortNumber))
+    userCensorPhrase = userCommandArray[1]
+    jakeClientUDP.sendto(userCensorPhrase.encode("utf-8"), (SocketIP, SocketPortNumber))
 
 #     # Waiting for Server Response
 #     print("Awaiting server response.")

@@ -207,7 +207,7 @@ while True:
 
 
         # Server Side File Storage
-        ServerSideFileName = "ServerSideTest__" + str(loopsOfChunk) + ".txt"
+        ServerSideFileName = "ServerSideFile__" + str(loopsOfChunk) #+ ".txt"
 
 
         if currentChunkIndex == 0:
@@ -247,6 +247,7 @@ while True:
     
         jakeServerUDP.sendto(finMessageToClient.encode(), clientAddress)
 
+
     ##TIMEOUT - Need to put an else here if the number of packets doesn't match up
 
 
@@ -269,12 +270,46 @@ while True:
             # check to see if serverKeywordArray[1] exits with if statement
     serverKeywordFileName = serverKeywordArray[1]
     print(f"Keyword Filename: {serverKeywordFileName}")
-    serverCensoredName = "Anon" + str(serverKeywordFileName) + "UDP.txt"
+    serverCensoredName = "Anon" + str(serverKeywordFileName) + "_UDP"
     print(serverCensoredName)
 
     # creating string to replace target phrase with
     serverReplacementString = myFindTargetString(serverSecretPhrase)
     print(f"Replacement String will be: {serverReplacementString}")
+
+
+    # opening new anon file
+    # https://docs.python.org/3/library/functions.html#open
+    textToChange = open(f"{ServerSideFileName}")
+    serverWholeFileToString = textToChange.read()
+    textToChange.close()
+
+
+# # --------------------------##
+#      Anonymize Logic here    #
+# # --------------------------##
+
+
+    # Doing find and replace
+    # from https://www.geeksforgeeks.org/python-string-replace/
+    serverCensoredOutput = serverWholeFileToString.replace(
+        serverSecretPhrase, serverReplacementString)
+
+    
+    # Overwriting any previous file with the same name
+    f = open(f"{serverCensoredName}", "w")
+
+    # Output sting to file
+    # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
+    
+    with open(f"{serverCensoredName}", 'a') as f:
+        print(serverCensoredOutput, file=f)
+
+
+    # finishing up and Sending response back to client
+    print("File Written Successfully")
+# # ----
+
 
 
 
