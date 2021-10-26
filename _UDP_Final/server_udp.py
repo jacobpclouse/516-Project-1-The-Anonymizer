@@ -170,7 +170,7 @@ while True:
     serverNeedToCensorLengthArray = (serverNeedToCensorLength).split(':', 1)
     print(serverNeedToCensorLengthArray)
     print(f"According to client, The length of the file is: {serverNeedToCensorLengthArray[1]}")
-
+    # TIMEOUT NEEDED IF LENGTH NOT RECIEVED
 
     # find out how many chunks of 1000 you will send, ceiling it
     # https://www.geeksforgeeks.org/floor-ceil-function-python/
@@ -357,7 +357,6 @@ while True:
 
 
 
-'''
     # ----
     # Chunk String
     # ----
@@ -380,7 +379,8 @@ while True:
         starterPoint = endPoint
         chunks += 1
 
-
+    print("Got through Array If you see this")
+'''
 
 
 # -----

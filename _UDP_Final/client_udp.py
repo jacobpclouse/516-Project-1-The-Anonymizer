@@ -115,7 +115,8 @@ jakeClientUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # Variables
 userCommand = ''
 userCommandArray = ['', '']
-
+lengthOfChunk = 1000
+getLengthOfChunk = 1000
 
 # creating array to append seperate strings to
 # https://www.kite.com/python/answers/how-to-make-an-array-of-strings-in-python
@@ -164,7 +165,7 @@ if userCommandArray[0].lower() != 'quit':
 
     # find out how many chunks of 1000 you will send, ceiling it
     # https://www.geeksforgeeks.org/floor-ceil-function-python/
-    lengthOfChunk = 1000
+    #lengthOfChunk = 1000
     loopsOfChunk = fileLengthVar / lengthOfChunk
     loopsOfChunkTrunk = int(loopsOfChunk)
     print(loopsOfChunk)
@@ -304,9 +305,10 @@ if userCommandArray[0].lower() != 'quit':
     # Split on String
     # https://www.tutorialspoint.com/python/string_split.htm
 
-    print(f"Sending Request for file: {userCommandArray[1]}")
-
     userGetRequest = str(userCommandArray[1])
+    print(f"Sending Request for file: {userGetRequest}")
+
+    
 
     # sending Get command and request for filename to server
     jakeClientUDP.sendto(userGetRequest.encode("utf-8"), (SocketIP, SocketPortNumber))
@@ -320,6 +322,83 @@ if userCommandArray[0].lower() != 'quit':
     incomingStringLengthArray = (incomingStringLength).split(':', 1)
     print(incomingStringLengthArray)
     print(f"According to server, The length of the file is: {incomingStringLengthArray[1]}")
+    # TIMEOUT NEEDED IF LENGTH NOT RECIEVED
+# ----
+
+    # find out how many chunks of 1000 you will send, ceiling it
+    # https://www.geeksforgeeks.org/floor-ceil-function-python/
+    #getLengthOfChunk = 1000
+    getLoopsOfChunk = float(incomingStringLengthArray[1]) / getLengthOfChunk
+    getLoopsOfChunkTrunk = int(getLoopsOfChunk)
+    print(getLoopsOfChunk)
+    print(getLoopsOfChunkTrunk)
+
+    #if original value and truncated value are not the same, we will increase truncated value by 1
+    if getLoopsOfChunk != getLoopsOfChunkTrunk:
+        getLoopsOfChunk = getLoopsOfChunkTrunk + 1
+        # this will be how many loops we will have to send
+    print(f"Expecting {getLoopsOfChunk} chunks")
+
+
+# -----
+'''
+    # Creating String to write recive from 
+    clientCensoredMessage = ''
+
+    # Going to recieve 
+    clientCurrentChunkIndex = 0
+    clientAckOutbound = "Chunk has been recieved!"
+
+    while clientCurrentChunkIndex < getLoopsOfChunk:
+        print(f"On Array Section {clientCurrentChunkIndex}")
+
+
+        # Recieving string in 1000 byte incriments
+        clientCensoredMessage, clientAddress = jakeClientUDP.recvfrom(65527)
+        clientInboundString = clientCensoredMessage.decode("utf-8")
+        
+
+        # Sending ACK
+        jakeClientUDP.sendto(clientAckOutbound.encode("utf-8"), (SocketIP, SocketPortNumber))
+
+        # Server Side File Storage
+        #ServerSideFileName = "ServerSideFile__" + str(getLoopsOfChunk) #+ ".txt"
+
+
+        if clientCurrentChunkIndex == 0:
+
+            # Creating File
+            # Overwrite previous file with same name (so we don't accidentally append to it)
+            with open(f"client_{userGetRequest}", 'w') as f:
+                print(clientInboundString, file=f)
+
+            # cleanup
+            clientInboundString = ''
+                
+            
+        else:
+
+            #Writing to file
+            # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
+            with open(f"client_{userGetRequest}", 'a') as f:
+                print(clientInboundString, file=f)
+        
+
+        # incriment
+        clientCurrentChunkIndex += 1 
+
+        # cleanup
+        clientInboundString = ''
+
+        
+
+
+    # Send Fin String to client
+    finMessageToServer = 'Progress To Next Step'
+
+
+'''
+
 
 
 
