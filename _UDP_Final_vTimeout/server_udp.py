@@ -22,6 +22,18 @@
  8) How to log in to VM with SSH? or WINSCP?
 
  9) For the report, are their any specific topics you want us to touch on (ie: forumlas, protocols, etc)
+ 
+ 10) the timeout after length and ack are kinda fused together, is that alright?
+
+ 11) Do you want a timeout for the FIN message as well? Or is it just ACK messages?
+
+ 12) I use an array to split up my data, but it gives me new lines that break up phrases. How do i remove them?
+ 
+ 13) *** Have her take a look at timeouts and make sure that you are doing them correctly***
+    POST QUESTIONS IN FORUM
+
+
+*** MAKE SURE THAT THE SERVER CODE KEEPS RUNNIN NO MATTER WHAT (Ie: timeouts, incorrect code, etc)
  '''
 
 # -----------------------------------
@@ -95,7 +107,7 @@ chunkBookmark = 0
 
     # Timeout messages
 tellToQuit = 'quit'
-lengthTimeout = "Did not recieve data. Terminating"
+
 
 
 
@@ -180,105 +192,60 @@ while True:
     currentChunkIndex = 0
     serverAckOutbound = "Chunk has been recieved!"
 
-    jakeServerUDP.settimeout(10)
-    try:
-        while currentChunkIndex < loopsOfChunk:
-            print(f"On Array Section {currentChunkIndex}")
 
+    while currentChunkIndex < loopsOfChunk:
+        print(f"On Array Section {currentChunkIndex}")
+
+        try:
             # Recieving string in 1000 byte incriments
             serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(65527)
             inboundString = serverNeedToCensor.decode("utf-8")
 
-
-            # Sending ACK
-            jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
-
-
-            # Server Side File Storage
-            ServerSideFileName = "ServerSideFile__" + str(loopsOfChunk)
-
-
-            if currentChunkIndex == 0:
-
-                # Creating File
-                # Overwrite previous file with same name (so we don't accidentally append to it)
-                with open(f"{ServerSideFileName}", 'w') as f:
-                    print(inboundString, file=f)
-
-                # cleanup
-                inboundString = ''
-                    
-                
-            else:
-
-                #Writing to file
-            # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
-                with open(f"{ServerSideFileName}", 'a') as f:
-                    print(inboundString, file=f)
+            # Timeout in 1 sec
+            jakeServerUDP.settimeout(1)
             
+        except:
+            # Printing out error
+            print("Did not recieve data. Terminating")
+        
+        # reset timeout
+        # Help from Lav at https://stackoverflow.com/questions/34371096/how-to-use-python-socket-settimeout-properly
+        jakeServerUDP.settimeout(None)
 
-            # incriment
-            currentChunkIndex += 1 
+
+        # Sending ACK
+        jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
+
+
+        # Server Side File Storage
+        ServerSideFileName = "ServerSideFile__" + str(loopsOfChunk)
+
+
+        if currentChunkIndex == 0:
+
+            # Creating File
+            # Overwrite previous file with same name (so we don't accidentally append to it)
+            with open(f"{ServerSideFileName}", 'w') as f:
+                print(inboundString, file=f)
 
             # cleanup
             inboundString = ''
-
-    except:
-        # Printing out error
-        print(f"After Getting Length: {lengthTimeout}")
-        break
-        # Sending Signal to terminate client
-        #jakeServerUDP.sendto(tellToQuit.encode(), clientAddress)
-
-
-    # stop timeout
-    # Help from Lav at https://stackoverflow.com/questions/34371096/how-to-use-python-socket-settimeout-properly
-    jakeServerUDP.settimeout(True)
-
-    ## original code
-    # while currentChunkIndex < loopsOfChunk:
-    #     print(f"On Array Section {currentChunkIndex}")
-
-
-    #     # Recieving string in 1000 byte incriments
-    #     serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(65527)
-    #     inboundString = serverNeedToCensor.decode("utf-8")
-
-
-    #     # Sending ACK
-    #     jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
-
-
-    #     # Server Side File Storage
-    #     ServerSideFileName = "ServerSideFile__" + str(loopsOfChunk)
-
-
-    #     if currentChunkIndex == 0:
-
-    #         # Creating File
-    #         # Overwrite previous file with same name (so we don't accidentally append to it)
-    #         with open(f"{ServerSideFileName}", 'w') as f:
-    #             print(inboundString, file=f)
-
-    #         # cleanup
-    #         inboundString = ''
                 
             
-    #     else:
+        else:
 
-    #         #Writing to file
-    #     # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
-    #         with open(f"{ServerSideFileName}", 'a') as f:
-    #             print(inboundString, file=f)
+            #Writing to file
+        # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
+            with open(f"{ServerSideFileName}", 'a') as f:
+                print(inboundString, file=f)
         
 
-    #     # incriment
-    #     currentChunkIndex += 1 
+        # incriment
+        currentChunkIndex += 1 
 
-    #     # cleanup
-    #     inboundString = ''
-
-        
+        # cleanup
+        inboundString = ''
+       
 
 
     # Send Fin String to client
@@ -290,8 +257,6 @@ while True:
     
         jakeServerUDP.sendto(finMessageToClient.encode(), clientAddress)
 
-
-    ##TIMEOUT - Need to put an else here if the number of packets doesn't match up
 
 
     # ---------------
@@ -445,24 +410,43 @@ while True:
         print(outboundString)
         jakeServerUDP.sendto(outboundString.encode("utf-8"), clientAddress)
 
-        # wait for ACK
+        
 
-        print("Waiting for ACK")
-        ifAcked, clientAddress = jakeServerUDP.recvfrom(2048)
-        ifAcked = ifAcked.decode("utf-8")
-        print(f"Server Says: {ifAcked}")
+        try:
+            # wait for ACK
 
-        # incriment
-        serverCurrentChunkIndex += 1
-        numChunksRecived +=1
+            print("Waiting for ACK")
+            ifAcked, clientAddress = jakeServerUDP.recvfrom(2048)
+            ifAcked = ifAcked.decode("utf-8")
+            print(f"Server Says: {ifAcked}")
 
-        # clean up
-        ifAcked = ''
+            # incriment
+            serverCurrentChunkIndex += 1
+            numChunksRecived +=1
+
+            # clean up
+            ifAcked = ''
+
+            # Setting timeout for 1 second, looking for ACK
+             # Help from Lav at https://stackoverflow.com/questions/34371096/how-to-use-python-socket-settimeout-properly
+            jakeServerUDP.settimeout(1)
+        except:
+            print("Did not recieve Ack. Terminating.")
+
+
+        # Reseting Timeout in loop
+        # Help from Lav at https://stackoverflow.com/questions/34371096/how-to-use-python-socket-settimeout-properly
+        jakeServerUDP.settimeout(None)
 
     print(numChunksRecived)
     
+
+    # Reseting Timeout after loop
+    # Help from Lav at https://stackoverflow.com/questions/34371096/how-to-use-python-socket-settimeout-properly
+    jakeServerUDP.settimeout(None)
+
+
     # Need to wait until recieve FIN Message from 
-    ##TIMEOUT NEEDED
     ifFin = ''
     print("Waiting for FIN")
     ifFin, clientAddress = jakeServerUDP.recvfrom(2048)
