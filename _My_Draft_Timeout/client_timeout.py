@@ -54,25 +54,26 @@ print(pathName)
 textToChange = open(pathName)
 wholeFileToString = textToChange.read()
 textToChange.close()
-#print(wholeFileToString)
 
 
 # Finding Out what the censored phrase is from user & phrase length
 # from https://www.geeksforgeeks.org/python-string-length-len/
 censorPhrase = input("What phrase is classified: ")
-#lengthOfCensorPhrase = len(censorPhrase)
 
 # Finding out what the replacement character is
 #replaceChar = input("What do you want to replace it with: ")
-replaceChar = "X"
+replaceChar = "*"
 canContinue = True
 
+# While loop will stop after first run of client or after timeout
 while canContinue == True:
-    # Sending text to server so it can be censored
+    
     try: 
+        # Sending text to server so it can be censored
         jakeClientUDP.sendto(wholeFileToString.encode(), (SocketIP, SocketPortNumber))
 
         # timing out if response is not recieved after x seconds
+        # From https://docs.python.org/3/library/socket.html#socket.socket.settimeout
         jakeClientUDP.settimeout(1)
 
         # Recieve Ack
@@ -93,6 +94,7 @@ while canContinue == True:
         jakeClientUDP.sendto(censorPhrase.encode(), (SocketIP, SocketPortNumber))
 
         # timing out if response is not recieved after x seconds
+        # From https://docs.python.org/3/library/socket.html#socket.socket.settimeout        
         jakeClientUDP.settimeout(1)
 
         # Recieve Ack
@@ -112,6 +114,7 @@ while canContinue == True:
         jakeClientUDP.sendto(replaceChar.encode(), (SocketIP, SocketPortNumber))
 
         # timing out if response is not recieved after x seconds
+        # From https://docs.python.org/3/library/socket.html#socket.socket.settimeout
         jakeClientUDP.settimeout(1)
 
         # Recieve Ack
@@ -127,10 +130,11 @@ while canContinue == True:
 
     try:
         # Recieving censored text back & saving to file
-        censoredMessage, serverAddress = jakeClientUDP.recvfrom(2048)
+        censoredMessage, serverAddress = jakeClientUDP.recvfrom(65000)
         censoredMessage = censoredMessage.decode("utf-8")
 
         # timing out if response is not recieved after x seconds
+        # From https://docs.python.org/3/library/socket.html#socket.socket.settimeout
         jakeClientUDP.settimeout(10)
 
         # printing to standard out
@@ -139,7 +143,7 @@ while canContinue == True:
             print(censoredMessage, file=f)
     
     except:
-        print("Error Encountered When Recieving Censored output")
+        print("Data Transmission terminated prematurely.")
         canContinue = False
         break
 

@@ -52,7 +52,7 @@ print('The server is ready to receive')
 
 while True:
     # Recieving uncensored text string from client
-    uncensoredText, clientAddress = jakeServerUDP.recvfrom(2048)
+    uncensoredText, clientAddress = jakeServerUDP.recvfrom(65000)
 
     # Putting uncensored text into modified variable
     serverNeedToCensor = uncensoredText.decode()
@@ -72,7 +72,7 @@ while True:
     serverSecretPhrase = topSecretPhrase.decode()
 
     # Wait X seconds
-    time.sleep(5)
+    #time.sleep(5)
 
     # Server Ack message sent to client - Keyword
     ackToClient = "Keyword Recieved on Server"
@@ -116,7 +116,7 @@ while True:
     # from https://www.geeksforgeeks.org/python-string-replace/
     censoredOutput = serverNeedToCensor.replace(
         serverSecretPhrase, replacementString)
-    # print(censoredOutput)
 
     # Send back to user
+    #time.sleep(11)
     jakeServerUDP.sendto(censoredOutput.encode(), clientAddress)

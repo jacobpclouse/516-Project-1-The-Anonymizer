@@ -24,6 +24,9 @@
  9) For the report, are their any specific topics you want us to touch on (ie: forumlas, protocols, etc)
  '''
 
+# -----------------------------------
+# -----------------------------------
+
 # Import libraries
 import socket
 import sys
@@ -59,8 +62,8 @@ def returnPort():
 # Socket Port and IP 
 
 SocketIP = returnIP()
-#SocketIP = socket.gethostname()
 print(SocketIP)
+
 SocketPortNumber = returnPort()
 print(SocketPortNumber)
 
@@ -72,6 +75,7 @@ print(SocketPortNumber)
 
 jakeServerUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 jakeServerUDP.bind((SocketIP, SocketPortNumber))
+
 
 # --
 
@@ -87,7 +91,18 @@ lengthOfChunkOutbound = 1000
 arrayToSend = []
 chunkBookmark = 0
 
+
+
+    # Timeout messages
+tellToQuit = 'quit'
+lengthTimeout = "Did not recieve data. Terminating"
+
+
+
 # added
+
+recievedSuccessfully = 'Data Recieved'
+
 serverNeedToCensorLength = ''
 serverNeedToCensorLengthArray = ['', '']
 
@@ -103,16 +118,16 @@ serverGetRequest = ''
 
 serverFinalText = ''
 
+
 # ---
 # Program logic
 # ---
 
 
 # shows server is up and running
-print("The server is ready to receive")
+print("Server Is Online")
 
 
-# clientSocket, clientAddress = jakeServer.accept()
 # going to get data from client, loop until manually stoped
 while True:
 
@@ -123,7 +138,6 @@ while True:
 #     # PUT COMMAND
 #     # -----------
 
-
     # Need to accept and print out length of incoming string
     # Decoding and pushing it through to array, then displaying
     serverNeedToCensorLength, clientAddress = jakeServerUDP.recvfrom(2048)
@@ -131,7 +145,18 @@ while True:
     serverNeedToCensorLengthArray = (serverNeedToCensorLength).split(':', 1)
     print(serverNeedToCensorLengthArray)
     print(f"According to client, The length of the file is: {serverNeedToCensorLengthArray[1]}")
-    # TIMEOUT NEEDED IF LENGTH NOT RECIEVED
+
+
+    # timing out if response is not recieved after 1 second
+    # From https://docs.python.org/3/library/socket.html#socket.socket.settimeout
+    
+
+    # letting client know that length was recieved correctly
+    jakeServerUDP.sendto(recievedSuccessfully.encode(), clientAddress)
+
+
+
+
 
     # find out how many chunks of 1000 you will send, ceiling it
     # https://www.geeksforgeeks.org/floor-ceil-function-python/
@@ -155,47 +180,103 @@ while True:
     currentChunkIndex = 0
     serverAckOutbound = "Chunk has been recieved!"
 
-    while currentChunkIndex < loopsOfChunk:
-        print(f"On Array Section {currentChunkIndex}")
+    jakeServerUDP.settimeout(10)
+    try:
+        while currentChunkIndex < loopsOfChunk:
+            print(f"On Array Section {currentChunkIndex}")
+
+            # Recieving string in 1000 byte incriments
+            serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(65527)
+            inboundString = serverNeedToCensor.decode("utf-8")
 
 
-        # Recieving string in 1000 byte incriments
-        serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(65527)
-        inboundString = serverNeedToCensor.decode("utf-8")
-        #print(serverNeedToCensor)
-
-        # Sending ACK
-        jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
+            # Sending ACK
+            jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
 
 
-        # Server Side File Storage
-        ServerSideFileName = "ServerSideFile__" + str(loopsOfChunk) #+ ".txt"
+            # Server Side File Storage
+            ServerSideFileName = "ServerSideFile__" + str(loopsOfChunk)
 
 
-        if currentChunkIndex == 0:
+            if currentChunkIndex == 0:
 
-            # Creating File
-            # Overwrite previous file with same name (so we don't accidentally append to it)
-            with open(f"{ServerSideFileName}", 'w') as f:
-                print(inboundString, file=f)
+                # Creating File
+                # Overwrite previous file with same name (so we don't accidentally append to it)
+                with open(f"{ServerSideFileName}", 'w') as f:
+                    print(inboundString, file=f)
+
+                # cleanup
+                inboundString = ''
+                    
+                
+            else:
+
+                #Writing to file
+            # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
+                with open(f"{ServerSideFileName}", 'a') as f:
+                    print(inboundString, file=f)
+            
+
+            # incriment
+            currentChunkIndex += 1 
 
             # cleanup
             inboundString = ''
+
+    except:
+        # Printing out error
+        print(f"After Getting Length: {lengthTimeout}")
+        break
+        # Sending Signal to terminate client
+        #jakeServerUDP.sendto(tellToQuit.encode(), clientAddress)
+
+
+    # stop timeout
+    # Help from Lav at https://stackoverflow.com/questions/34371096/how-to-use-python-socket-settimeout-properly
+    jakeServerUDP.settimeout(True)
+
+    ## original code
+    # while currentChunkIndex < loopsOfChunk:
+    #     print(f"On Array Section {currentChunkIndex}")
+
+
+    #     # Recieving string in 1000 byte incriments
+    #     serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(65527)
+    #     inboundString = serverNeedToCensor.decode("utf-8")
+
+
+    #     # Sending ACK
+    #     jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
+
+
+    #     # Server Side File Storage
+    #     ServerSideFileName = "ServerSideFile__" + str(loopsOfChunk)
+
+
+    #     if currentChunkIndex == 0:
+
+    #         # Creating File
+    #         # Overwrite previous file with same name (so we don't accidentally append to it)
+    #         with open(f"{ServerSideFileName}", 'w') as f:
+    #             print(inboundString, file=f)
+
+    #         # cleanup
+    #         inboundString = ''
                 
             
-        else:
+    #     else:
 
-            #Writing to file
-        # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
-            with open(f"{ServerSideFileName}", 'a') as f:
-                print(inboundString, file=f)
+    #         #Writing to file
+    #     # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
+    #         with open(f"{ServerSideFileName}", 'a') as f:
+    #             print(inboundString, file=f)
         
 
-        # incriment
-        currentChunkIndex += 1 
+    #     # incriment
+    #     currentChunkIndex += 1 
 
-        # cleanup
-        inboundString = ''
+    #     # cleanup
+    #     inboundString = ''
 
         
 
@@ -232,7 +313,7 @@ while True:
             # check to see if serverKeywordArray[1] exits with if statement
     serverKeywordFileName = serverKeywordArray[1]
     print(f"Keyword Filename: {serverKeywordFileName}")
-    serverCensoredName = "Anon" + str(serverKeywordFileName) + "_UDP"
+    serverCensoredName = "Anon_UDP_" + str(serverKeywordFileName)
     print(serverCensoredName)
 
     # creating string to replace target phrase with
@@ -362,7 +443,6 @@ while True:
         #Sending to client
         outboundString = str(user1000ByteArray[serverCurrentChunkIndex])
         print(outboundString)
-        #jakeClientUDP.sendto(outboundString.encode("utf-8"), (SocketIP, SocketPortNumber))
         jakeServerUDP.sendto(outboundString.encode("utf-8"), clientAddress)
 
         # wait for ACK
