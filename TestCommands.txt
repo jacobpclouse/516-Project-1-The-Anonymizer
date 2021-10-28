@@ -1,3 +1,20 @@
+-----------------------
+TCP Draft Commands:
+-----------------------
+
+put File4.txt
+keyword 2021 File4.txt
+get AnonFile4.txt
+
+keyword 516 File4.txt
+
+
+
+
+-----------------------
+UDP Draft Commands:
+-----------------------
+
 put File2.txt
 keyword 2021 File2.txt
 get Anon_XXXX2.txt
@@ -11,6 +28,11 @@ put ./_UDP_Final/File4.txt
 -----------------------
 Timeout Draft Commands:
 -----------------------
+
+
+SCP-6868.txt
+SCP-6868
+█
 
 File4.txt
 File1.txt

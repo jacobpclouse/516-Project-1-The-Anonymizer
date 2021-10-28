@@ -3,14 +3,8 @@
 '''
  This was inspired by https://pythonprogramming.net/sockets-tutorial-python-3/ 
  
- Questions: 
- 1) For the get function, is the string specified after the name of the file that you want to output it as?
- 2) This program is very linear, it expects things in a specific order (ie: put, keyword, get) is that ok?
- 3) I expect a port number on input of function, should i have contingency port if that is not entered? 
-        Should we assume that you will only test port numbers? or will you try and cause an error by leaving it blank/enterning letters?
 
- 4) I'm not getting full length back the second time (it gives me full message first time, but only like 2/3 on second) Why?
- 5) How do I quit out of a program at any time?   
+ 1) It looks like I'm running out of buffer space (line 147 being overwritten)
  '''
 
 # Import libraries
@@ -32,6 +26,9 @@ def returnPort():
     incomingPort = int(sys.argv[2])
     return incomingPort
 
+# ---
+
+# Taking the values for IP and Port from command line arguments
 
 SocketIP = returnIP()
 print(SocketIP)
@@ -39,9 +36,13 @@ SocketPortNumber = returnPort()
 print(SocketPortNumber)
 
 
+# Creating & Binding Server to Specified IP & Port
 
 jakeServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
 jakeServer.bind((SocketIP, SocketPortNumber))
+
+
+# ---
 
 
 # Variables
@@ -84,12 +85,14 @@ print("The server is ready to receive")
 # buffer set to 5
 jakeServer.listen(5)
 
-# clientSocket, clientAddress = jakeServer.accept()
+
 # going to get data from client, loop until manually stoped
 while True:
 
+    # Displaying connection from client
     clientSocket, clientAddress = jakeServer.accept()
     print(f"Connection from {clientAddress} has been established.")
+
 
     # -----------
     # PUT COMMAND
@@ -111,7 +114,6 @@ while True:
 
     # Output sting to file
     # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
-    #f = open("myfile.txt", "x")
     with open(f'{serverOriginalFileName}_', 'w') as f:
         print(serverNeedToCensor, file=f)
 
@@ -160,7 +162,6 @@ while True:
     # Output sting to file
     # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
     
-    #f = open(f"{serverCensoredName}", "x")
     with open(f"{serverCensoredName}", 'w') as f:
         print(serverCensoredOutput, file=f)
 
@@ -172,9 +173,6 @@ while True:
     # Sending back name of the new censored file
     messageRecieved = f"Server response: File {serverKeywordFileName} has been anonymized. Output file is {serverCensoredName}"
     clientSocket.send(messageRecieved.encode())
-
-    # maybe send as header?
-    #clientSocket.send(serverCensoredName.encode())
     
     # -----------
     # GET COMMAND
@@ -187,22 +185,16 @@ while True:
     print(f"Get Request Recieved: Sending back censored output")
 
     print(f"The length of string output: {len(serverCensoredOutput)}")
-    #serverGetOutput = "Your Request was flawed"
 
-    # if the requested filename is the same as the anonymized file,
-    # then move contents to a string
-    # if serverGetRequest == serverCensoredName:
-    #     serverGetOutput = open(f"{serverCensoredName}")
-    #     serverFinalText = textToChange.read()
-    #     textToChange.close()
     textToChange = open(serverCensoredName)
     serverFinalText = textToChange.read()
     print(f"Length of Text to Send to Client: {len(serverFinalText)}")
     textToChange.close()
 
-        
+    # Sending final text back to client
     clientSocket.send(serverFinalText.encode())
-    #clientSocket.send(serverFinalText.encode("utf"))
-    
-   
+
+    # Cleanup
+    serverWholeFileToString = ''
+    serverNeedToCensor = ''
 

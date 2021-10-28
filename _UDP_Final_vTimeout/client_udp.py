@@ -167,7 +167,7 @@ if userCommandArray[0].lower() != 'quit':
 
         starterPoint = endPoint
         chunks += 1
-
+# try debugging output, try removing the array
 
     #----
     # Sending over server chunks

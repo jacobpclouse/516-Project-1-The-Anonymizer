@@ -33,6 +33,14 @@
     POST QUESTIONS IN FORUM
 
 
+14) Am I chunking the string up correctly? Ie: it am use 1000 for my segment size, but I don't know if that is sans header
+
+
+15) How can I remove specific newlines and the extra spaces at the end?
+
+
+16) Are these comments alright? I didn't copy any code directly, just looked up how to do things. Should I still cite the orginal examples/authors?
+
 *** MAKE SURE THAT THE SERVER CODE KEEPS RUNNIN NO MATTER WHAT (Ie: timeouts, incorrect code, etc)
  '''
 

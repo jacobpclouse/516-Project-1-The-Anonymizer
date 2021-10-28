@@ -62,7 +62,7 @@ censorPhrase = input("What phrase is classified: ")
 
 # Finding out what the replacement character is
 #replaceChar = input("What do you want to replace it with: ")
-replaceChar = "*"
+replaceChar = "█"
 canContinue = True
 
 # While loop will stop after first run of client or after timeout
