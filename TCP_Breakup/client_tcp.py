@@ -117,6 +117,11 @@ if userCommandArray[0].lower()  == 'put':
     jakeClient.send(outboundLoops.encode())
     print(outboundLoops)
 
+
+    # Recieving ACK
+    clientAck, clientAddress = jakeClient.recvfrom(2048)
+    print(f"Server Length Response: {clientAck}")
+
     # ----
     # Chunk String, Send Out
     # ----

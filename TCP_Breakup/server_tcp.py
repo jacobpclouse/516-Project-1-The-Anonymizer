@@ -8,6 +8,7 @@
  '''
 
 # Import libraries
+from os import pread
 import socket
 import sys
 
@@ -50,10 +51,10 @@ serverNeedToCensor = ''
 serverSecretPhrase = ''
 
 # # added
+serverStartup = "The server is ready to receive"
+
 serverOriginalFileName = ''
 serverCensoredName = ''
-
-serverNeedToCensor = ''
 
 serverKeywordData = 'default value'
 serverKeywordFileName = ''
@@ -80,7 +81,7 @@ def myFindTargetString(targetPhase):
 
 # Program logic
 # shows server is up and running
-print("The server is ready to receive")
+print(serverStartup)
 
 # buffer set to 20
 jakeServer.listen(5)
@@ -108,8 +109,12 @@ while True:
 
     # getting number of loops that are incoming
     serverLoopsOfChunk  = clientSocket.recv(2048).decode()
-    print(f"From Client: {serverLoopsOfChunk}")
-    #serverLoopsOfChunk = int(serverLoopsOfChunk)
+    print(f"Number Of Chunks To Expect From Client: {serverLoopsOfChunk}")
+    
+    
+    # Sending Ack back
+    clientSocket.send(serverStartup.encode())
+    print("Length Ack Sent!")
 # ---
 # recieving incoming chunks:
 
@@ -171,10 +176,12 @@ while True:
             # Sending Ack
             clientSocket.send(serverAckOutbound.encode())
 
-        # # Sending ACK
-        # clientSocket.send(serverAckOutbound.encode())
+     # Sending ACK
+    clientSocket.send(serverAckOutbound.encode())
 
     print("Done with Recieving!")
+
+
 # ---
     
     # Open file, write to string, get length of string, compair!
@@ -222,7 +229,7 @@ while True:
 
     # opening file
     # https://docs.python.org/3/library/functions.html#open
-    textToChange = open(f"{serverKeywordFileName}_")
+    textToChange = open(f"{serverOriginalFileName}_")
     serverWholeFileToString = textToChange.read()
     textToChange.close()
 

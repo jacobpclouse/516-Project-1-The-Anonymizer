@@ -15,16 +15,15 @@ python3 client_tcp.py 169.226.22.20 12345
 
 
 
-
+Get IP address from terminal:
 ------
-print("IP: " + socket.gethostbyname(socket.gethostname()))
+hostname -I
+------
 
-
-hostname –I
 
 
 ip addr
-
+print("IP: " + socket.gethostbyname(socket.gethostname()))
 
 
 scp [OPTION] [user@]SRC_HOST:]file1 [user@]DEST_HOST:]file2
