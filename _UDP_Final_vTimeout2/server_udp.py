@@ -89,8 +89,7 @@ print(SocketPortNumber)
 
 
 
-#jakeServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-#jakeServer.bind((SocketIP, SocketPortNumber))
+# Main Logic
 # ---
 
 jakeServerUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -113,8 +112,8 @@ chunkBookmark = 0
 
 
 
-    # Timeout messages
-tellToQuit = 'quit'
+#     # Timeout messages
+# tellToQuit = 'quit'
 
 
 

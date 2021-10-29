@@ -44,3 +44,12 @@ Fall 2021
 
 
 
+-----------------------
+TCP LOOP Draft Commands:
+-----------------------
+
+put File2.txt
+keyword 2021 File2.txt
+get AnonFile2.txt
+
+keyword 516 File4.txt

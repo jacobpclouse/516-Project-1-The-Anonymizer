@@ -1,0 +1,16 @@
+nslookup icsi416-fa21.its.albany.edu
+
+
+
+--
+
+Server:		127.0.0.53
+Address:	127.0.0.53#53
+
+Non-authoritative answer:
+Name:	icsi416-fa21.its.albany.edu
+Address: 169.226.22.20
+
+
+
+Port Range: 12000 to 12500
