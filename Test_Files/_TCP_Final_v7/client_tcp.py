@@ -18,11 +18,6 @@ If the user makes a mistake (ie: gives wrong keyword) that on them (don't worry 
 ** THINK about HOW you are going to impliment string splitting!
 """
 
-# put File4.txt
-# keyword ICSI File4.txt
-# get AnonFile4.txt
-
-# keyword 516 File4.txt
 
 # -----------------------------------
 # -----------------------------------

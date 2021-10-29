@@ -122,16 +122,6 @@ if userCommandArray[0].lower() != 'quit':
     jakeClientUDP.sendto(wholeFileToStringLength.encode(), (SocketIP, SocketPortNumber))
 
 
-    # # receiving message to see if server got length correctly
-    # # will quit loop if not
-    # confirmationServerAck, serverAddress = jakeClientUDP.recvfrom(2048)
-    # confirmationServerAck = confirmationServerAck.decode("utf-8")
-
-    # # seeing what message says
-    # if confirmationServerAck == 'quit':
-    #     canContinue = False
-    #     break
-
 
     # find out how many chunks of 1000 you will send, ceiling it
     # https://www.geeksforgeeks.org/floor-ceil-function-python/

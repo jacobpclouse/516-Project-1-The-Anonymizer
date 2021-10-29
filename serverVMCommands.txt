@@ -1,0 +1,32 @@
+ssh icsi416-fa21.its.albany.edu -l jc366512
+print("IP: " + socket.gethostbyname(socket.gethostname()))
+
+
+
+
+
+
+
+------
+hostname –I
+
+
+ip addr
+
+
+
+scp [OPTION] [user@]SRC_HOST:]file1 [user@]DEST_HOST:]file2
+
+scp -r /media/jake/WDC 500GB/ICSI 516/Project 1/Code Project 1/client server draft 1/_TCP_Final_v7/client_tcp.py jc366512@icsi416-fa21.its.albany.edu:/home1/s/j/jc366512/516
+
+
+
+scp -r client_tcp.py jc366512@icsi416-fa21.its.albany.edu:/home1/s/j/jc366512/516
+
+
+
+
+
+You should connect to the VM and get its IP using following command: "hostname –I (capital i)" or "ip addr".
+
+
