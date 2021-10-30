@@ -15,9 +15,9 @@ keyword 516 File4.txt
 UDP Draft Commands:
 -----------------------
 
-put File2.txt
-keyword 2021 File2.txt
-get Anon_XXXX2.txt
+put File4.txt
+keyword 2021 File4.txt
+get Anon_XXXX4.txt
 
 keyword 516 File4.txt
 
@@ -48,8 +48,8 @@ Fall 2021
 TCP LOOP Draft Commands:
 -----------------------
 
-put File2.txt
-keyword 2021 File2.txt
-get AnonFile2.txt
+put File4.txt
+keyword 2021 File4.txt
+get AnonFile4.txt
 
 keyword 516 File4.txt

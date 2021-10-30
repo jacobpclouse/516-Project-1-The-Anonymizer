@@ -1,7 +1,12 @@
+Get on Server: 
+
 Run in terminal:
 
 ssh icsi416-fa21.its.albany.edu -l jc366512
 
+-----
+
+TCP:
 
 Run in VM terminal:
 python3 server_tcp.py 169.226.22.20 12345
@@ -10,8 +15,18 @@ python3 server_tcp.py 169.226.22.20 12345
 Run in your VSCode Bash:
 python3 client_tcp.py 169.226.22.20 12345
 
+---------------------
 
 
+
+
+UDP:
+Run in VM terminal:
+python3 server_udp.py 169.226.22.20 12345
+
+
+Run in your VSCode Bash:
+python3 client_udp.py 169.226.22.20 12345
 
 
 
