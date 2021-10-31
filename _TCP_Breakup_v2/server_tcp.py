@@ -8,7 +8,7 @@
  '''
 
 # Import libraries
-from os import pread
+
 import socket
 import sys
 
@@ -50,6 +50,8 @@ jakeServer.bind((SocketIP, SocketPortNumber))
 serverNeedToCensor = ''
 serverSecretPhrase = ''
 
+lengthOfChunk = 4000
+
 # # added
 serverStartup = "The server is ready to receive"
 
@@ -63,6 +65,7 @@ serverGetRequest = ''
 
 serverFinalText = ''
 
+serverLoopsOfChunk = 0
 # ---
 
 # Functions
@@ -133,9 +136,7 @@ while True:
         print(f"On String Section Section {currentChunkIndex}")
         print(f"Need to get to {int(serverLoopsOfChunk)}")
 
-        # Recieving string in 1000 byte incriments
-        #serverNeedToCensor, clientAddress = jakeServer.accept()
-        #serverNeedToCensor, clientAddress = jakeServer.recv(65000)
+        # Recieving string in byte incriments
         serverNeedToCensor  = clientSocket.recv(65000)
         inboundString = serverNeedToCensor.decode("utf-8")
         print(inboundString)
@@ -149,7 +150,7 @@ while True:
             # Creating File
             # Overwrite previous file with same name (so we don't accidentally append to it)
             with open(f"{serverOriginalFileName}_", 'w') as f:
-                print(inboundString, file=f)
+                print(inboundString, end = '', file=f)
 
             print("1st statement")
             # cleanup
@@ -164,7 +165,7 @@ while True:
             #Writing to file
         # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
             with open(f"{serverOriginalFileName}_", 'a') as f:
-                print(inboundString, file=f)
+                print(inboundString, end = '', file=f)
         
             print("2nd Statement")
             # incriment
@@ -184,28 +185,6 @@ while True:
 
 # ---
     
-    # Open file, write to string, get length of string, compair!
-    
-    
-    # Accepting String that needs to be censored from client
-    #serverNeedToCensor = clientSocket.recv(100000).decode()
-    
-    # print(f"String that needs to be censored is: {serverNeedToCensor}")
-    # print(f"The length of the file is: {len(serverNeedToCensor)}")
-
-
-
-    # # Output sting to file
-    # # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
-    # with open(f'{serverOriginalFileName}_', 'w') as f:
-    #     print(serverNeedToCensor, file=f)
-
-    # send response back to client
-    # messageRecieved = "Server response: File Uploaded"
-    # clientSocket.send(messageRecieved.encode())
-
-    # cleaning up
-    # messageRecieved = ''
 
     # ---------------
     # KEYWORD COMMAND
@@ -222,7 +201,14 @@ while True:
     # check to see if serverKeywordArray[1] exits with if statement
     serverKeywordFileName = serverKeywordArray[1]
     print(f"Keyword Filename: {serverKeywordFileName}")
+# ---
 
+    # send response back to client
+    # Sending back name of the new censored file
+    messageRecieved = f"Server response: File {serverKeywordFileName} has been anonymized. Output file is {serverCensoredName}"
+    clientSocket.send(messageRecieved.encode())
+
+# --
     # creating string to replace target phrase with
     serverReplacementString = myFindTargetString(serverSecretPhrase)
     print(serverReplacementString)
@@ -246,7 +232,7 @@ while True:
     # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
     
     with open(f"{serverCensoredName}", 'w') as f:
-        print(serverCensoredOutput, file=f)
+        print(serverCensoredOutput, end = '', file=f)
 
 # ----
 
@@ -254,8 +240,8 @@ while True:
     
     # send response back to client
     # Sending back name of the new censored file
-    messageRecieved = f"Server response: File {serverKeywordFileName} has been anonymized. Output file is {serverCensoredName}"
-    clientSocket.send(messageRecieved.encode())
+    # messageRecieved = f"Server response: File {serverKeywordFileName} has been anonymized. Output file is {serverCensoredName}"
+    # clientSocket.send(messageRecieved.encode())
     
     # -----------
     # GET COMMAND
@@ -275,8 +261,60 @@ while True:
     textToChange.close()
 
     # Sending final text back to client
-    clientSocket.send(serverFinalText.encode())
+    #clientSocket.send(serverFinalText.encode())
+# ##################
 
+    # USE THE NUMBER OF CHUNKS YOU RECIEVED PREVIOUSLY
+
+    # ----
+    # Chunk String, Send Out
+    # ----
+    print(f"Loops going back: {serverLoopsOfChunk}")
+    serverFinalText = ''
+
+    chunks = 0
+    starterPoint = 0
+    while chunks < int(serverLoopsOfChunk):
+
+        endPoint = starterPoint + lengthOfChunk
+
+        # Sending
+
+        clientSocket.send(serverCensoredOutput[starterPoint:endPoint].encode())
+
+        print(f"On chunk: {chunks}, String to append is: {serverCensoredOutput[starterPoint:endPoint]}")
+
+        starterPoint = endPoint
+        chunks += 1
+
+
+        # # wait for ACK
+
+        print("Waiting for ACK")
+
+        # # Recieving ACK from Server
+        ifAcked = clientSocket.recv(2048).decode()
+
+        print(f"Client Says: {ifAcked}")
+
+        # # clean up
+        ifAcked = ''
+
+
+
+    print("Chunks have been sent to the client sucessfully!")
+
+
+# # ---
+
+
+
+
+
+
+
+
+########################
     # Cleanup
     serverWholeFileToString = ''
     serverNeedToCensor = ''
@@ -293,3 +331,4 @@ while True:
     serverSecretPhrase = ''
 
     messageRecieved = ''
+    serverLoopsOfChunk = 0

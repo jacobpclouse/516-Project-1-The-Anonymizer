@@ -2,9 +2,9 @@
 TCP Draft Commands:
 -----------------------
 
-put File4.txt
-keyword 2021 File4.txt
-get AnonFile4.txt
+put File2.txt
+keyword 2021 File2.txt
+get AnonFile2.txt
 
 keyword 516 File4.txt
 
