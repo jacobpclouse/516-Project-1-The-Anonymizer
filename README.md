@@ -1,8 +1,8 @@
 # 516-Project-1-The-Anonymizer
 A client-server application that anonymizes user-specified words from a text file and two reliable data transport protocols.
 
-# From the Assignment Page our Teacher gave us:
-#ASSIGNMENT OVERVIEW
+From the Assignment Page our Teacher gave us:
+# ASSIGNMENT OVERVIEW
 
 The goal of this project is to practice your Application and Transport Layer skills by
 implementing (i) the anonymizer, a client-server application that anonymizes user-specified
