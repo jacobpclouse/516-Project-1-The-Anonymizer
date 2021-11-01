@@ -29,7 +29,7 @@
 # Import libraries
 import socket
 import sys
-
+import time
 
 # --
 # Functions
@@ -179,7 +179,7 @@ while True:
 
         try:
             # Recieving string in 1000 byte incriments
-            serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(65527)
+            serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(2048)
             inboundString = serverNeedToCensor.decode("utf-8")
 
             # Timeout in 1 sec

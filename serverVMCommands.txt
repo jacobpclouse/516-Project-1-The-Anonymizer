@@ -35,6 +35,8 @@ Get IP address from terminal:
 hostname -I
 ------
 
+** TIME LIB worked on vm!
+
 
 
 ip addr
