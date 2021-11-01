@@ -254,7 +254,7 @@ if userCommandArray[0].lower() == 'get':
 
             # Creating File
             # Overwrite previous file with same name (so we don't accidentally append to it)
-            # with open(f"{censoredTextFileName}", 'w') as f:
+            #with open(f"{censoredTextFileName}", 'w') as f:
             #     print(censoredMessage, end = '', file=f)
 
             # print("1st statement")
