@@ -132,7 +132,7 @@ if isTimeOut != 1:
     starterPoint = 0
 
     # WHILE LOOP HERE
-    while chunks < loopsOfChunk:
+    while chunks < loopsOfChunk and isTimeOut != 1:
         endPoint = starterPoint + 1000
         
         # chunking data

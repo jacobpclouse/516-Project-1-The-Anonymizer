@@ -172,10 +172,9 @@ while True:
 
 
     # TEST isTimeOut flag to see if sections will skip if it is not false
-
     if isTimeOut != 1:
-        print(f"Num of Loops: {loopsOfChunk}")
-        print("All done!")
+        print(f"Moving on to keyword")
+        
 
 
 # ---
