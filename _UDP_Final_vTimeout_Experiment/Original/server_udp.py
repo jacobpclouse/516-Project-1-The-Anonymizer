@@ -9,8 +9,8 @@
 
  11) Do you want a timeout for the FIN message as well? Or is it just ACK messages?
 
- 12) I use an array to split up my data, but it gives me new lines that break up phrases. How do i remove them?
- 
+ 12) How would i go about splitting up the length and ack timeouts?
+
  13) *** Have her take a look at timeouts and make sure that you are doing them correctly***
     POST QUESTIONS IN FORUM
 
@@ -19,6 +19,8 @@
 
 
 15) where do i put timeouts?!?****8
+
+16) having weird issues with the server, runs fine on local machine, but not on server!
 
 *** MAKE SURE THAT THE SERVER CODE KEEPS RUNNIN NO MATTER WHAT (Ie: timeouts, incorrect code, etc)
  '''
@@ -73,8 +75,7 @@ print(SocketPortNumber)
 
 jakeServerUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 jakeServerUDP.bind((SocketIP, SocketPortNumber))
-
-
+jakeServerUDP.settimeout(None)
 
 # --
 
@@ -150,7 +151,7 @@ while True:
 
 
 
-
+    
     # find out how many chunks of 1000 you will send, ceiling it
     # https://www.geeksforgeeks.org/floor-ceil-function-python/
     #lengthOfChunk = 1000
@@ -173,7 +174,8 @@ while True:
     currentChunkIndex = 0
     serverAckOutbound = "Chunk has been recieved!"
 
-    
+
+
     while currentChunkIndex < loopsOfChunk:
         print(f"On Array Section {currentChunkIndex}")
 
