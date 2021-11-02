@@ -1,6 +1,7 @@
 # Import libraries
 import socket
 import sys
+import time
 
 # --
 # Functions
@@ -112,6 +113,9 @@ while True:
     serverNeedToCensorLength = serverNeedToCensorLength.decode()
     print(f"LEN: {serverNeedToCensorLength}")
 
+    # test sleep
+    #time.sleep(2)
+
     # ack back
     recievedSuccessfully = "Length Recieved sucessfully!"
     jakeServerUDP.sendto(recievedSuccessfully.encode(), clientAddress)
@@ -152,3 +156,73 @@ while True:
 
     # reset isTimeout
     isTimeOut = 0
+
+
+# ---
+
+# ---
+# recieving incoming chunks:
+
+#     # Creating String to write recive from 
+#     serverNeedToCensor = ''
+
+#     # Going to recieve 
+#     currentChunkIndex = 0
+    
+
+#     # Server Side File Storage
+#     ServerSideFileName = f"{serverOriginalFileName}_"
+
+
+#     while currentChunkIndex < int(serverLoopsOfChunk):
+#         print(f"On String Section Section {currentChunkIndex}")
+#         print(f"Need to get to {int(serverLoopsOfChunk)}")
+
+#         # Recieving string in byte incriments
+#         serverNeedToCensor  = clientSocket.recv(65000)
+#         inboundString = serverNeedToCensor.decode("utf-8")
+#         print(inboundString)
+
+#         # creating ACK
+#         serverAckOutbound =  f"Chunk {currentChunkIndex} has been recieved!"
+
+
+#         if currentChunkIndex == 0:
+
+#             # Creating File
+#             # Overwrite previous file with same name (so we don't accidentally append to it)
+#             with open(f"{serverOriginalFileName}_", 'w') as f:
+#                 print(inboundString, end = '', file=f)
+
+#             print("1st statement")
+#             # cleanup
+#             inboundString = ''
+#             currentChunkIndex += 1 
+
+#             # Sending Ack
+#             clientSocket.send(serverAckOutbound.encode())    
+            
+#         else:
+
+#             #Writing to file
+#         # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
+#             with open(f"{serverOriginalFileName}_", 'a') as f:
+#                 print(inboundString, end = '', file=f)
+        
+#             print("2nd Statement")
+#             # incriment
+#             currentChunkIndex += 1 
+
+#             # cleanup
+#             inboundString = ''
+
+#             # Sending Ack
+#             clientSocket.send(serverAckOutbound.encode())
+
+#      # Sending ACK
+#     clientSocket.send(serverAckOutbound.encode())
+
+#     print("Done with Recieving!")
+
+
+# # ---

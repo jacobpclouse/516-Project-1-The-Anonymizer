@@ -99,7 +99,6 @@ print(wholeFileToStringLength)
 #LENGTH SEND - NEED ACK OUT AND ACK BACK
 # Sending length of file to server first
 jakeClientUDP.sendto(wholeFileToStringLength.encode(), (SocketIP, SocketPortNumber))
-
 '''
 Length Ack - Incoming
 '''
@@ -113,7 +112,7 @@ try:
     print(f"From Server: {ifAcked}")
 except:
     # timeout error for no length ack
-    print("Did not recieve ACK. Terminating.")
+    print("Did not recieve ACK. Terminating. (Length)")
     isTimeOut = 1
 #reset timeout
 jakeClientUDP.settimeout(None) 
@@ -122,24 +121,31 @@ jakeClientUDP.settimeout(None)
 ifAcked = ''
 
 
-# Sending Data to Server
-jakeClientUDP.sendto(wholeFileToString.encode("utf-8"), (SocketIP, SocketPortNumber))
-'''
-File recieved ACK - Incoming
-'''
-# timeout for 1 sec
-jakeClientUDP.settimeout(1)
+# if timeout check
+if isTimeOut != 1:
+    # Sending Data to Server
+    jakeClientUDP.sendto(wholeFileToString.encode("utf-8"), (SocketIP, SocketPortNumber))
+    '''
+    File recieved ACK - Incoming
+    '''
+    # timeout for 1 sec
+    jakeClientUDP.settimeout(1)
 
-try:
-    ifAcked, clientAddress = jakeClientUDP.recvfrom(2048)
-    ifAcked = ifAcked.decode()
-    print(f"From Server: {ifAcked}")
-except:
-    # timeout error for no confirmation of data
-    print("Did not recieve ACK. Terminating.")
-    isTimeOut = 1
-# reset timeout
-jakeClientUDP.settimeout(None) 
+    try:
+        ifAcked, clientAddress = jakeClientUDP.recvfrom(2048)
+        ifAcked = ifAcked.decode()
+        print(f"From Server: {ifAcked}")
+    except:
+        # timeout error for no confirmation of data
+        print("Did not recieve ACK. Terminating. (File Upload)")
+        isTimeOut = 1
+    # reset timeout
+    jakeClientUDP.settimeout(None) 
+
+    #cleanup
+    ifAcked = ''
+else:
+    print("Timeout Triggered")
 
 
 
