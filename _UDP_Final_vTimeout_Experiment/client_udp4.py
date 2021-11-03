@@ -196,21 +196,28 @@ if isTimeOut != 1:
 
         try:
             # Recieving confirmation back from server
-            confirmationServer1, serverAddress = jakeClientUDP.recvfrom(2048)
+            confirmationServer1, clientAddress = jakeClientUDP.recvfrom(2048)
             print(confirmationServer1.decode("utf-8"))
 
-            # sending ACK back
-            confirmationServer2 = 'Server Ack Recieved'
-            jakeClientUDP.sendto(confirmationServer2, (SocketIP, SocketPortNumber))
         except:
             print("Did not get Keyword Ack Back. Terminating")
             isTimeOut = 1
 
         # reset timeout
         jakeClientUDP.settimeout(None) 
+# ---
+                
+        '''
+        SERVER TIMEOUT - Sending Confirmation of Ack recipt back to server
+        '''
+        confirmationServer2 = 'Server Ack Recieved'
+        jakeClientUDP.sendto((confirmationServer2).encode("utf-8"), (SocketIP, SocketPortNumber)) 
+
 else:
     print("Timeout Triggered 2")
 
+if isTimeOut != 1:
+    print("If you see this, we moved onto the next phase")
 
 
 # #CONVERT FROM TCP

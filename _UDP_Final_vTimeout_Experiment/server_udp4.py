@@ -185,46 +185,57 @@ while True:
 
         serverKeywordData, clientAddress = jakeServerUDP.recvfrom(2048)
         serverKeywordArray = (serverKeywordData.decode()).split(' ', 1)
+        print(serverKeywordArray) # Remove after testing
 
     # Timeout - ACK
     # --
+        # # send response back to client
+        # # Sending back name of the new censored file
+        # # make this a normal ack
+        serverAckOutbound =  f"Keyword: {serverKeywordArray[0]} has been recieved!"
+        jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
+        print(serverAckOutbound)
+
+        print("Waiting for ACK Confirmation")
+        '''
+        SERVER TIMEOUT - Recieving Confirmation of ACK recipt on server
+        '''
         jakeServerUDP.settimeout(1)
         try:
-            # # send response back to client
-            # # Sending back name of the new censored file
-            # # make this a normal ack
-            serverAckOutbound =  f"Keyword: {serverKeywordArray[1]} has been recieved!"
-            print(serverAckOutbound)
-            jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
-
-            print("Waiting for ACK Confirmation")
-
-            # getting response back
+        #     # # # getting response back
             serverConfirmation2, clientAddress = jakeServerUDP.recvfrom(2048)
+            serverConfirmation2 = serverConfirmation2.decode()
             print(serverConfirmation2)
         except:
             print("Response not recieved for keyword ACK. Terminating.")
-
+            isTimeOut = 1 # will be used to skip other timeouts
+        
         jakeServerUDP.settimeout(None)
+
+'''
     # ---
-        # Getting Phase to Censor
-        serverSecretPhrase = serverKeywordArray[0]
-        print(f"Top Secret Word to censor is: {serverSecretPhrase}")
+    # do if statement 
+        if isTimeOut != 1:
+            # Getting Phase to Censor
+            serverSecretPhrase = serverKeywordArray[0]
+            print(f"Top Secret Word to censor is: {serverSecretPhrase}")
 
-        # creating string to replace target phrase with
-        serverReplacementString = myFindTargetString(serverSecretPhrase)
-        print(f"Replacement String will be: {serverReplacementString}")
+            # creating string to replace target phrase with
+            serverReplacementString = myFindTargetString(serverSecretPhrase)
+            print(f"Replacement String will be: {serverReplacementString}")
 
-        # opening new anon file
-        # https://docs.python.org/3/library/functions.html#open
-        textToChange = open(f"{ServerSideFileName}")
-        serverWholeFileToString = textToChange.read()
-        textToChange.close()
-
+            # opening new anon file
+            # https://docs.python.org/3/library/functions.html#open
+            textToChange = open(f"{ServerSideFileName}")
+            serverWholeFileToString = textToChange.read()
+            textToChange.close()
+        else:
+            print("Timeout Triggered: No Secrete Phrase or Replacement String")
+'''
 # # --------------------------##
 #      Anonymize Logic here    #
 # # --------------------------##
-
+'''
 
         # Doing find and replace
         # from https://www.geeksforgeeks.org/python-string-replace/
@@ -324,3 +335,4 @@ while True:
 
 
 # # ---
+'''
