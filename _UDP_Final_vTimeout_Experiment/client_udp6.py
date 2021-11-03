@@ -98,12 +98,10 @@ if userCommandArray[0].lower() == 'put':
     # finding number of loops
     loopsOfChunk = numOfLoops(len(wholeFileToString))
 
-
-    #LENGTH SEND - NEED ACK OUT AND ACK BACK
     # Sending length of file to server first
     jakeClientUDP.sendto(wholeFileToStringLength.encode(), (SocketIP, SocketPortNumber))
     '''
-    Length Ack - Incoming
+    LENGTH SEND - NEED ACK OUT AND ACK BACK
     '''
     # timeout for 1 sec
     jakeClientUDP.settimeout(1)
@@ -165,9 +163,38 @@ if userCommandArray[0].lower() == 'put':
             outboundChunk = ''
             starterPoint = endPoint
             chunks += 1
+
+
+        '''
+        RECIEVING FIN MESSAGE
+        SEND ACK MESSAGE BACK
+        '''
+        # set timeout to 1 sec
+
+        confirmationServer2 = 'Confirmation Recipt - FIN message'
+        jakeClientUDP.settimeout(1)
+        
+        try:
+            ifAcked, clientAddress = jakeClientUDP.recvfrom(2048)
+            ifAcked = ifAcked.decode()
+            print(ifAcked)
+            
+            #sending fin recipt back
+            jakeClientUDP.sendto(confirmationServer2.encode("utf-8"), (SocketIP, SocketPortNumber))
+        except:
+            # timeout error for no confirmation of data
+            print("Did not recieve ACK. Terminating. (File Upload)")
+            isTimeOut = 1
+
+        # reset timout 
+        jakeClientUDP.settimeout(None)
+
+        #cleanup
+        ifAcked = ''
+
+
     else:
         print("Timeout Triggered")
-
 
 # ----
 # # ---------------
@@ -399,7 +426,7 @@ AND ACK
 # # QUIT COMMAND
 # # -----------
 # ----
-if userCommandArray[0].lower() != 'quit':
+if userCommandArray[0].lower() != 'quit' and isTimeOut != 1:
     print(f"File has been saved as: {userGetRequest}")
     # if timeout check
     if isTimeOut != 1:

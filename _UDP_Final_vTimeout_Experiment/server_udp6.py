@@ -171,7 +171,31 @@ while True:
         currentChunkIndex += 1 
 
         # while loop ends ----
+# --
+        '''
+        SENDING FIN MESSAGE
+        NEED ACK MESSAGE BACK
+        '''
+        if (currentChunkIndex) == int(loopsOfChunk):
+            serverFINMessage = "Server FIN Recieved!"
+            
+            # Sending Fin message to client
+            jakeServerUDP.sendto(serverFINMessage.encode(), clientAddress)
 
+            # Set timeout for 1 sec
+            jakeServerUDP.settimeout(1)
+
+            # recieving ack back
+            try:
+                serverNeedToCensor, clientAddress = jakeServerUDP.recvfrom(2048)
+                serverNeedToCensor = serverNeedToCensor.decode()
+                print(serverNeedToCensor)
+            except:
+                print("Data transmission terminated prematurely")
+                isTimeOut = 1 # skips other timeouts if 1
+
+            # reset timeout
+            jakeServerUDP.settimeout(None)
 
 # ----
 # # ---------------
@@ -181,10 +205,8 @@ while True:
 
     # TEST isTimeOut flag to see if sections will skip if it is not false
     if isTimeOut != 1:
-        print(f"Moving on to keyword \n") 
         # Accepting the word to censor from client
         # AND target file's filename from client
-
         serverKeywordData, clientAddress = jakeServerUDP.recvfrom(2048)
         serverKeywordArray = (serverKeywordData.decode()).split(' ', 1)
 
@@ -234,10 +256,10 @@ while True:
         
             # New Filenames
             newCensoredFileName = f"Anon_{serverKeywordArray[1]}"
-# # --------------------------##
-#      Anonymize Logic here    #
-# # --------------------------##
 
+# # --------------------------##
+#    Anonymize happens here    #
+# # --------------------------##
 
             # Doing find and replace
             # from https://www.geeksforgeeks.org/python-string-replace/
@@ -291,10 +313,9 @@ while True:
 # # GET COMMAND
 # # -----------
 # ----
+
     # if timeout check
     if isTimeOut != 1:
-        print("Moving on to 'Get' command\n") # remove after testing
-
         # Recieving Get request from user
         serverGetRequest, clientAddress = jakeServerUDP.recvfrom(2048)
         serverGetRequest = serverGetRequest.decode("utf-8")
@@ -338,7 +359,6 @@ while True:
 
         # Get length
         wholeFileToStringLength = str(len(wholeFileToString))
-        print(f"Length to send: {wholeFileToStringLength}") # remove after testing
 
 
         # transmitting length to client 
