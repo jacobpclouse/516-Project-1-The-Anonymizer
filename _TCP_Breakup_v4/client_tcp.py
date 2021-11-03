@@ -54,11 +54,9 @@ userCommandArray = ['', '']
 lengthOfChunk = 4000
 # ---
 
-
 # -----------------------------------
 # Main Logic!
 # -----------------------------------
-
 
 
 # -----------
@@ -84,13 +82,12 @@ if userCommandArray[0].lower()  == 'put':
 
     # Store Length to a variable
     fileLengthVar = len(wholeFileToString)
-    print(f"The length of the file is: {fileLengthVar}")
+    #print(f"The length of the file is: {fileLengthVar}")
 
     # # sending original filename to server
     jakeClient.send(filePath.encode())
 
 # ---
-
 
     # -----------
     # Need To Send Length to server
@@ -101,26 +98,26 @@ if userCommandArray[0].lower()  == 'put':
     # https://www.geeksforgeeks.org/floor-ceil-function-python/
     loopsOfChunk = fileLengthVar / lengthOfChunk
     loopsOfChunkTrunk = int(loopsOfChunk)
-    print(loopsOfChunk)
-    print(loopsOfChunkTrunk)
+    #print(loopsOfChunk)
+    #print(loopsOfChunkTrunk)
 
     #if original value and truncated value are not the same, we will increase truncated value by 1
     if loopsOfChunk != loopsOfChunkTrunk:
         loopsOfChunk = loopsOfChunkTrunk + 1
         # this will be how many loops we will have to send
-    print(f"Expect {loopsOfChunk} loops")
+    #print(f"Expect {loopsOfChunk} loops")
 
     # converting to string for ease
     outboundLoops = str(loopsOfChunk)
 
     # Sending number of chunks to server first
     jakeClient.send(outboundLoops.encode())
-    print(outboundLoops)
+    #print(outboundLoops)
 
 
     # Recieving ACK
     clientAck, clientAddress = jakeClient.recvfrom(2048)
-    print(f"Server Length Response: {clientAck}")
+    #print(f"Server Length Response: {clientAck}")
 
     # ----
     # Chunk String, Send Out
@@ -137,7 +134,7 @@ if userCommandArray[0].lower()  == 'put':
         jakeClient.send(wholeFileToString[starterPoint:endPoint].encode())
 
 
-        print(f"On chunk: {chunks}, String to append is: {wholeFileToString[starterPoint:endPoint]}")
+        #print(f"On chunk: {chunks}, String to append is: {wholeFileToString[starterPoint:endPoint]}")
 
         starterPoint = endPoint
         chunks += 1
@@ -145,13 +142,13 @@ if userCommandArray[0].lower()  == 'put':
 
         # # wait for ACK
 
-        print("Waiting for ACK")
+        #print("Waiting for ACK")
 
         # # Recieving ACK from Server
         ifAcked, clientAddress = jakeClient.recvfrom(2048)
         ifAcked = ifAcked.decode("utf-8")
 
-        print(f"Server Says: {ifAcked}")
+        #print(f"Server Says: {ifAcked}")
 
 
         # # clean up
@@ -176,7 +173,7 @@ if userCommandArray[0].lower()  == 'put':
     # Split on String
     # https://www.tutorialspoint.com/python/string_split.htm
     userCommandArray = userCommand.split(' ', 1)
-    print(f"User command: {userCommandArray[0]}")
+    #print(f"User command: {userCommandArray[0]}")
 
 
 # also checking to see if quit command is not active
@@ -190,17 +187,19 @@ if userCommandArray[0].lower()  == 'keyword':
     jakeClient.send(userCensorPhrase.encode())
 
     # Waiting for Server Response
-    print("Awaiting server response.")
+    print("KEYWORD Awaiting server response.")
 
     # Recieving confirmation back from server
     confirmationServer1 = jakeClient.recv(2048).decode("utf-8")
     print(confirmationServer1)
-    #try commenting print ack out  if it doesn't work
+
 
     # cleaning up
     userCommand = ''
     userCommandArray = ['', '']
     confirmationServer1 = ''
+
+
 
 
 
@@ -213,12 +212,12 @@ if userCommandArray[0].lower()  == 'keyword':
 #     # Split on String
 #     # https://www.tutorialspoint.com/python/string_split.htm
     userCommandArray = userCommand.split(' ', 1)
-    print(f"User command: {userCommandArray[0]}")
+    #print(f"User command: {userCommandArray[0]}")
 
 
 if userCommandArray[0].lower() == 'get':
     
-    print(userCommandArray[1])
+    #print(userCommandArray[1])
 
     userGetRequest = userCommandArray[1]
 
@@ -238,28 +237,24 @@ if userCommandArray[0].lower() == 'get':
     censoredTextFileName = f"client_Anon{filePath}"
 
 
-    while currentChunkIndex <= int(loopsOfChunk):
-        print(f"On String Section Section {currentChunkIndex}")
-        print(f"Need to get to {int(loopsOfChunk)}")
+    while currentChunkIndex < int(loopsOfChunk):
+        #print(f"On String Section Section {currentChunkIndex}")
+        #print(f"Need to get to {int(loopsOfChunk)}")
 
         # Recieving string in byte incriments
         censoredMessage = jakeClient.recv(65000)
         censoredMessage = censoredMessage.decode("utf-8")
-        print(censoredMessage)
+        #print(censoredMessage)
 
         # creating ACK
         serverAckOutbound =  f"Chunk {currentChunkIndex} has been recieved!"
 
         if currentChunkIndex == 0:
 
-            # Creating File
-            # Overwrite previous file with same name (so we don't accidentally append to it)
-            #with open(f"{censoredTextFileName}", 'w') as f:
-            #     print(censoredMessage, end = '', file=f)
-
-            # print("1st statement")
-            print(censoredMessage)
-            
+            # Creating File (Overwriting if exits already)
+            # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
+            with open(f"{censoredTextFileName}", 'w') as f:
+                print(censoredMessage, end = '', file=f)
 
             # incriment
             currentChunkIndex += 1 
@@ -269,6 +264,7 @@ if userCommandArray[0].lower() == 'get':
 
             # Sending Ack
             jakeClient.send(serverAckOutbound.encode())
+
 
         else:
 
@@ -277,7 +273,7 @@ if userCommandArray[0].lower() == 'get':
             with open(f"{censoredTextFileName}", 'a') as f:
                 print(censoredMessage, end = '', file=f)
         
-            print("2nd Statement")
+            #print("2nd Statement")
             # incriment
             currentChunkIndex += 1 
 
@@ -287,30 +283,13 @@ if userCommandArray[0].lower() == 'get':
             # Sending Ack
             jakeClient.send(serverAckOutbound.encode())
 
+
      # Sending ACK
+    #print('Sending out ack')
     jakeClient.send(serverAckOutbound.encode())
 
     print("Done with Recieving!")
 
-
-###### ----------
-    # Getting censored message back from server & printing out
-    #censoredMessage = jakeClient.recv(100000).decode()
-
-    # print(censoredMessage)
-    # print(f"Length of Censored Message 1: {len(censoredMessage)}")
-    # # Getting Confirmaton of Download from server
-
-    # # printing to standard out
-    # # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
-    # with open(f'client_{userGetRequest}', 'w') as f:
-    #         print(censoredMessage, file=f)
-
-    # print(f"Length of Censored Message 2: {len(censoredMessage)}")
-    # print(f"Message has been downloaded and stored as: client_{userGetRequest}")
-
-    #     # clean up
-    # censoredMessage = ''
 
 # ---
 
