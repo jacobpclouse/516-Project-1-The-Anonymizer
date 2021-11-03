@@ -103,7 +103,7 @@ print("Server Is Online")
 # going to get data from client, loop until manually stoped
 while True:
     # Server prints this if it has been successfully created
-    print(f'The server is ready to receive on Hostname: {SocketIP}, Port: {SocketPortNumber}')
+    print(f'The server is ready to receive on Hostname: {SocketIP}, Port: {SocketPortNumber}\n')
 
     #     # -----------
     #     # PUT COMMAND
@@ -111,15 +111,12 @@ while True:
 
     serverNeedToCensorLength, clientAddress = jakeServerUDP.recvfrom(2048)
     serverNeedToCensorLength = serverNeedToCensorLength.decode()
-    print(f"LEN: {serverNeedToCensorLength}")
+    print(f"LEN: {serverNeedToCensorLength}\n")
 
-    # test sleep
-    #time.sleep(2)
 
     # ack back
     recievedSuccessfully = "Length Recieved sucessfully!"
     jakeServerUDP.sendto(recievedSuccessfully.encode(), clientAddress)
-
 
 
     # finding number of loops
@@ -179,13 +176,13 @@ while True:
 
     # TEST isTimeOut flag to see if sections will skip if it is not false
     if isTimeOut != 1:
-        print(f"Moving on to keyword")
+        print(f"Moving on to keyword \n") 
         # Accepting the word to censor from client
         # AND target file's filename from client
 
         serverKeywordData, clientAddress = jakeServerUDP.recvfrom(2048)
         serverKeywordArray = (serverKeywordData.decode()).split(' ', 1)
-        print(serverKeywordArray) # Remove after testing
+
 
     # Timeout - ACK
     # --
@@ -196,7 +193,7 @@ while True:
         jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
         print(serverAckOutbound)
 
-        print("Waiting for ACK Confirmation")
+        print("Waiting for ACK Confirmation\n")
         '''
         SERVER TIMEOUT - Recieving Confirmation of ACK recipt on server
         '''
@@ -205,14 +202,14 @@ while True:
         #     # # # getting response back
             serverConfirmation2, clientAddress = jakeServerUDP.recvfrom(2048)
             serverConfirmation2 = serverConfirmation2.decode()
-            print(serverConfirmation2)
+            print(f"Response from Client: {serverConfirmation2}\n")
         except:
             print("Response not recieved for keyword ACK. Terminating.")
             isTimeOut = 1 # will be used to skip other timeouts
         
         jakeServerUDP.settimeout(None)
 
-'''
+
     # ---
     # do if statement 
         if isTimeOut != 1:
@@ -229,37 +226,61 @@ while True:
             textToChange = open(f"{ServerSideFileName}")
             serverWholeFileToString = textToChange.read()
             textToChange.close()
-        else:
-            print("Timeout Triggered: No Secrete Phrase or Replacement String")
-'''
+        
+
 # # --------------------------##
 #      Anonymize Logic here    #
 # # --------------------------##
-'''
 
-        # Doing find and replace
-        # from https://www.geeksforgeeks.org/python-string-replace/
-        serverCensoredOutput = serverWholeFileToString.replace(
-            serverSecretPhrase, serverReplacementString)
 
+            # Doing find and replace
+            # from https://www.geeksforgeeks.org/python-string-replace/
+            serverCensoredOutput = serverWholeFileToString.replace(serverSecretPhrase, serverReplacementString)
         
-        # Overwriting any previous file with the same name
-        f = open(f"Anon_serverCensoredName_UDP_{loopsOfChunk}", "w")
+            # Overwriting any previous file with the same name
+            f = open(f"Anon_serverCensoredName_UDP_{loopsOfChunk}", "w")
 
-        # Output sting to file
-        # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
+            # Output sting to file
+            # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
         
-        with open(f"Anon_serverCensoredName_UDP_{loopsOfChunk}", 'a') as f:
-            print(serverCensoredOutput, file=f)
+            with open(f"Anon_serverCensoredName_UDP_{loopsOfChunk}", 'a') as f:
+                print(serverCensoredOutput, end = '', file=f)
 
 
+# Sending Confirmation of Scrambling + new name of the file to client
         
-        # # send response back to client
-        # # Sending back name of the new censored file
-        # # make this a normal ack
-        # messageRecieved = f"Server response: File {serverKeywordFileName} has been anonymized. Output file is {serverCensoredName}"
-        # print(messageRecieved)
-        # jakeServerUDP.sendto(messageRecieved.encode(), clientAddress)
+            messageRecieved = f"File {serverKeywordArray[1]} has been anonymized. Output file is: Anon_{serverKeywordArray[1]}"
+            print(messageRecieved)
+
+            jakeServerUDP.sendto(messageRecieved.encode(), clientAddress)
+            '''
+            TIMEOUT NEEDED FOR ACK
+            '''
+            # will need to send ack confirmation as well
+
+            # Timeout for 1 sec
+            jakeServerUDP.settimeout(1)
+
+            try: 
+                # receiving client ACK
+                serverConfirmation2 = ''
+                serverConfirmation2, clientAddress = jakeServerUDP.recvfrom(2048)
+                serverConfirmation2 = serverConfirmation2.decode()
+                print(f"Response from Client: {serverConfirmation2}\n")
+
+                # sending out ACK for client ACK
+                serverAckOutbound =  f"New Anon Message: Client ACK has been recieved!"
+                jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
+            except:
+                print("Response not recieved ACK for Anon Name Message. Terminating.")
+                isTimeOut = 1 # will be used to skip other timeouts
+
+            # reset timeout
+            jakeServerUDP.settimeout(None)
+        
+        else:
+            print("Skipped Scrambling due to timeout!")
+
 
 # ---
 
@@ -335,4 +356,3 @@ while True:
 
 
 # # ---
-'''
