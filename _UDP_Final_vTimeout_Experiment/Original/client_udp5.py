@@ -36,13 +36,13 @@ def numOfLoops(lengthVar):
     return loopsOfChunk1
 
 
+# opens file and gets length
 def openTextFile(userCommandArray1):
     filePath = userCommandArray1[1]
     textToChange = open(filePath)
     wholeFileToString1 = textToChange.read()
     textToChange.close()
     return wholeFileToString1
-
 
 
 # -----
@@ -70,7 +70,6 @@ isTimeOut = 0
 
 
 
-
 #-------------------------------------
 # Main Logic!
 #-------------------------------------
@@ -86,6 +85,7 @@ userCommand = input("Enter Command: ")
 # https://www.tutorialspoint.com/python/string_split.htm
 userCommandArray = userCommand.split(' ', 1)
 print(f"User command: {userCommandArray[0]}")
+
 
 
 # Getting file length
@@ -123,6 +123,9 @@ jakeClientUDP.settimeout(None)
 #cleanup
 ifAcked = ''
 
+'''
+NEED TO SEND CONF ACK BACK TO SERVER
+'''
 
 # if timeout check
 if isTimeOut != 1:
@@ -174,7 +177,7 @@ else:
 # if timeout check
 if isTimeOut != 1:
     # checking to see if quit
-    if userCommandArray[0].lower() != 'quit':
+    if userCommandArray[0].lower() == 'put':
         userCommand = input("Enter command: ")
         # Split on String
         # https://www.tutorialspoint.com/python/string_split.htm
@@ -210,7 +213,7 @@ if isTimeOut != 1:
         '''
         SERVER TIMEOUT - Sending Confirmation of Ack recipt back to server
         '''
-        confirmationServer2 = 'Server Ack Recieved'
+        confirmationServer2 = 'Confirmation Recipt - Server Ack'
         jakeClientUDP.sendto((confirmationServer2).encode("utf-8"), (SocketIP, SocketPortNumber)) 
 
 
@@ -219,15 +222,16 @@ if isTimeOut != 1:
         # getting confirmation that file has been scrambled
         # Getting name of new scrambled file
         # Sending ack back
-        confirmationServer1 = ''
         confirmationServer1, clientAddress = jakeClientUDP.recvfrom(2048)
         confirmationServer1 = confirmationServer1.decode("utf-8")
         print(f"Server Response: {confirmationServer1}")
 
-        
+        '''
+        SENDING ACK to server
+        '''
         # message recieved need to send ack to server
         # need to set timeout for incoming ack
-        confirmationServer2 = 'Server New File Name Recieved'
+        confirmationServer2 = 'Confirmation Recipt - New Anon File Name'
         jakeClientUDP.sendto((confirmationServer2).encode("utf-8"), (SocketIP, SocketPortNumber))
 
         '''
@@ -254,49 +258,163 @@ if isTimeOut != 1:
 else:
     print("Timeout Triggered 2")
 
+
+# ----
+# # -----------
+# # GET COMMAND
+# # -----------
+# ----
+# if timeout check
 if isTimeOut != 1:
-    print("If you see this, we moved onto the next phase")
+    # prompting user for next command (checks to see if quit active)
+    if userCommandArray[0].lower() == 'keyword':
+        userCommand = input("Enter command: ")
+
+        # Split on String
+        # https://www.tutorialspoint.com/python/string_split.htm
+        userCommandArray = userCommand.split(' ', 1)
+        print(f"User command: {userCommandArray[0]}")
+
+    # check to see if command is 'get'
+    if userCommandArray[0].lower() == 'get':
+        
+        userGetRequest = str(userCommandArray[1])
+        print(f"Sending Request for file: {userGetRequest}")
+
+        # sending Get command and request for filename to server
+        jakeClientUDP.sendto(userGetRequest.encode("utf-8"), (SocketIP, SocketPortNumber))
+
+        '''
+        TIMEOUT - NEED ACK CONF BACK for Get request
+        '''
+        # Timeout for 1 sec
+        jakeClientUDP.settimeout(1)
+        
+        try:
+            # waiting for ack back from server - get request
+            ifAcked, clientAddress = jakeClientUDP.recvfrom(2048)
+            ifAcked = ifAcked.decode()
+            print(ifAcked)
+        except:
+            print("Data transmission terminated prematurely.")
+            isTimeOut = 1 # will be used to skip other timeouts
+
+        # reset timeout
+        jakeClientUDP.settimeout(None)
+
+        #cleanup
+        ifAcked = '' 
+
+        '''
+        SEND ACK TO SERVER
+        '''
+        # need to send ack to server
+        confirmationServer2 = 'Confirmation Recipt - Get request'
+        jakeClientUDP.sendto((confirmationServer2).encode("utf-8"), (SocketIP, SocketPortNumber))
+
+        '''
+        TIMEOUT - NEED ACK CONF BACK - Length
+        '''
+        # Timeout for 1 sec
+        jakeClientUDP.settimeout(1)
+        
+        try:
+            # waiting for ack back from server - get request
+            serverIncomingLength, clientAddress = jakeClientUDP.recvfrom(2048)
+            serverIncomingLength = serverIncomingLength.decode()
+
+        except:
+            print("Data transmission terminated prematurely. 2")
+            isTimeOut = 1 # will be used to skip other timeouts
+
+        # reset timeout
+        jakeClientUDP.settimeout(None)
 
 
-# #CONVERT FROM TCP
-# # Data sending to server
-# # ----
-#     # Chunk String, Send Out
-#     # ----
-#     outboundChunk = ''
-
-#     chunks = 0
-#     starterPoint = 0
-#     while chunks < loopsOfChunk:
-
-#         endPoint = starterPoint + 1000
-
-#         # Sending
-#         jakeClient.send(wholeFileToString[starterPoint:endPoint].encode())
+        '''
+        SEND ACK TO SERVER
+        '''
+        # need to send ack to server
+        confirmationServer2 = 'Confirmation Recipt - Length'
+        jakeClientUDP.sendto((confirmationServer2).encode("utf-8"), (SocketIP, SocketPortNumber))
+# ---
 
 
-#         print(f"On chunk: {chunks}, String to append is: {wholeFileToString[starterPoint:endPoint]}")
+# if timeout check
+if isTimeOut != 1:
+    
+    # finding number of loops
+    loopsOfChunk = numOfLoops(int(serverIncomingLength))
+######
+    # Going to recieve 
+    currentChunkIndex = 0
 
-#         starterPoint = endPoint
-#         chunks += 1
+    # receiving chunks in while loop
+    while (currentChunkIndex <= int(loopsOfChunk)) and isTimeOut != 1:
+        # Timeout after LEN: need to recieve data before one sec
+        jakeClientUDP.settimeout(1)
 
+        try:
+            # Recieve incoming data before 1 sec
+            confirmationServer1, clientAddress = jakeClientUDP.recvfrom(2048)
+            inboundString = confirmationServer1.decode()
 
-#         # # wait for ACK
+            # sending out ACK to client
+            serverAckOutbound =  f"Chunk {currentChunkIndex} has been recieved!"
+            jakeClientUDP.sendto(serverAckOutbound.encode(), clientAddress)
+        except:
+            print("Did not recieve data. Terminating")
+            isTimeOut = 1 # will be used to skip other timeouts
 
-#         print("Waiting for ACK")
+        # Reset Timeout
+        jakeClientUDP.settimeout(None)
 
-#         # # Recieving ACK from Server
-#         ifAcked, clientAddress = jakeClient.recvfrom(2048)
-#         ifAcked = ifAcked.decode("utf-8")
+        # Writing to file
+        if currentChunkIndex == 0:
 
-#         print(f"Server Says: {ifAcked}")
+            # Creating File
+            # Overwrite previous file with same name (so we don't accidentally append to it)
+            with open(f"{userGetRequest}", 'w') as f:
+                print('', end = '', file=f)
 
+        else: 
+            #Writing to file
+            # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
+            with open(f"{userGetRequest}", 'a') as f:
+                print(inboundString, end = '', file=f)
 
-#         # # clean up
-#         ifAcked = ''
+        # cleanup
+        confirmationServer1 = ''
+        inboundString = ''
+        currentChunkIndex += 1 
 
+        # while loop ends ----
 
+'''
+FIN MESSAGE!
+AND ACK
+'''
+# ----
+# # -----------
+# # QUIT COMMAND
+# # -----------
+# ----
 
+print(f"File has been saved as: {userGetRequest}")
+# if timeout check
+if isTimeOut != 1:
+    if userCommandArray[0].lower() != 'quit':
+        userCommand = input("Enter command: ")
+        # Split on String
+        # https://www.tutorialspoint.com/python/string_split.htm
+        userCommandArray = userCommand.split(' ', 1)
+        print(f"User command: {userCommandArray[0]}")
+
+# quit statement
+if userCommandArray[0].lower() == 'quit':
+    print("Quitting...")
+# ---
 
 # closeout
 jakeClientUDP.close()
+

@@ -28,8 +28,6 @@ def returnPort():
     return incomingPort
 
 
-
-
 def numOfLoops(lengthVar):
     # find out how many chunks of 1000 you will send, ceiling it
     # https://www.geeksforgeeks.org/floor-ceil-function-python/
@@ -46,7 +44,12 @@ def numOfLoops(lengthVar):
     return loopsOfChunk1
 
 
-
+# opens file and gets length
+def openTextFile(userCommandArray1):
+    textToChange = open(userCommandArray1)
+    wholeFileToString1 = textToChange.read()
+    textToChange.close()
+    return wholeFileToString1
 
 
 
@@ -91,9 +94,9 @@ isTimeOut = 0
 ####
 
 
-# ---
-# Program logic
-# ---
+#-------------------------------------
+# Main Logic!
+#-------------------------------------
 
 
 # shows server is up and running
@@ -105,9 +108,11 @@ while True:
     # Server prints this if it has been successfully created
     print(f'The server is ready to receive on Hostname: {SocketIP}, Port: {SocketPortNumber}\n')
 
-    #     # -----------
-    #     # PUT COMMAND
-    #     # -----------
+# ----
+# # -----------
+# # PUT COMMAND
+# # -----------
+# ----
 
     serverNeedToCensorLength, clientAddress = jakeServerUDP.recvfrom(2048)
     serverNeedToCensorLength = serverNeedToCensorLength.decode()
@@ -227,7 +232,8 @@ while True:
             serverWholeFileToString = textToChange.read()
             textToChange.close()
         
-
+            # New Filenames
+            newCensoredFileName = f"Anon_{serverKeywordArray[1]}"
 # # --------------------------##
 #      Anonymize Logic here    #
 # # --------------------------##
@@ -238,18 +244,18 @@ while True:
             serverCensoredOutput = serverWholeFileToString.replace(serverSecretPhrase, serverReplacementString)
         
             # Overwriting any previous file with the same name
-            f = open(f"Anon_serverCensoredName_UDP_{loopsOfChunk}", "w")
+            f = open(f"server_{newCensoredFileName}", "w")
 
             # Output sting to file
             # from https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
         
-            with open(f"Anon_serverCensoredName_UDP_{loopsOfChunk}", 'a') as f:
+            with open(f"server_{newCensoredFileName}", 'a') as f:
                 print(serverCensoredOutput, end = '', file=f)
 
 
 # Sending Confirmation of Scrambling + new name of the file to client
         
-            messageRecieved = f"File {serverKeywordArray[1]} has been anonymized. Output file is: Anon_{serverKeywordArray[1]}"
+            messageRecieved = f"File {serverKeywordArray[1]} has been anonymized. Output file is: {newCensoredFileName}"
             print(messageRecieved)
 
             jakeServerUDP.sendto(messageRecieved.encode(), clientAddress)
@@ -263,7 +269,6 @@ while True:
 
             try: 
                 # receiving client ACK
-                serverConfirmation2 = ''
                 serverConfirmation2, clientAddress = jakeServerUDP.recvfrom(2048)
                 serverConfirmation2 = serverConfirmation2.decode()
                 print(f"Response from Client: {serverConfirmation2}\n")
@@ -281,78 +286,131 @@ while True:
         else:
             print("Skipped Scrambling due to timeout!")
 
+# ----
+# # -----------
+# # GET COMMAND
+# # -----------
+# ----
+    # if timeout check
+    if isTimeOut != 1:
+        print("Moving on to 'Get' command\n") # remove after testing
+
+        # Recieving Get request from user
+        serverGetRequest, clientAddress = jakeServerUDP.recvfrom(2048)
+        serverGetRequest = serverGetRequest.decode("utf-8")
+        print(f"Get Request Recieved: {serverGetRequest}")
+
+        '''
+        SEND ACK TO CLIENT
+        '''
+        # sending out ACK for client get
+        serverAckOutbound =  f"Client Get request has been recieved for: {serverGetRequest}!"
+        jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
+
+        '''
+        TIMEOUT - NEED ACK BACK
+        '''
+
+        jakeServerUDP.settimeout(1)
+
+        try: 
+            # receiving client ACK
+            serverConfirmation2, clientAddress = jakeServerUDP.recvfrom(2048)
+            serverConfirmation2 = serverConfirmation2.decode()
+            print(f"Response from Client: {serverConfirmation2}\n")
+
+        except:
+            print("Data Transmission Terminated prematurely.")
+            isTimeOut = 1 # will be used to skip other timeouts
+
+        # reset timeout
+        jakeServerUDP.settimeout(None)
+
+
+    # if timeout check
+    if isTimeOut != 1:
+
+        # Sending length
+        # opening file
+        serverGetRequest = f"server_{serverGetRequest}"
+        print(serverGetRequest)
+        wholeFileToString = openTextFile(serverGetRequest)
+
+        # Get length
+        wholeFileToStringLength = str(len(wholeFileToString))
+        print(f"Length to send: {wholeFileToStringLength}") # remove after testing
+
+
+        # transmitting length to client 
+        jakeServerUDP.sendto(wholeFileToStringLength.encode(), clientAddress)
+        '''
+        TIMEOUT - NEED ACK BACK
+        '''
+        jakeServerUDP.settimeout(1)
+
+        try: 
+            # receiving client ACK
+            serverConfirmation2, clientAddress = jakeServerUDP.recvfrom(2048)
+            serverConfirmation2 = serverConfirmation2.decode()
+            print(f"Response from Client: {serverConfirmation2}\n")
+
+            # sending out ACK for client ACK
+            serverAckOutbound =  f"Length: Client ACK has been recieved!"
+            jakeServerUDP.sendto(serverAckOutbound.encode(), clientAddress)
+        except:
+            print("Did not recieve ACK. Terminating.")
+            isTimeOut = 1 # will be used to skip other timeouts
+
+        # reset timeout
+        jakeServerUDP.settimeout(None)
+
+# --
+    # sending chunks to client
+    # if timeout check
+    if isTimeOut != 1:
+        
+        outboundChunk = ''
+        chunks = 0
+        starterPoint = 0
+
+        # WHILE LOOP HERE
+        while chunks <= loopsOfChunk and isTimeOut != 1:
+            endPoint = starterPoint + 1000
+            
+            # chunking data
+            outboundChunk = wholeFileToString[starterPoint:endPoint]
+
+            # Sending Data to client
+            jakeServerUDP.sendto(outboundChunk.encode("utf-8"), clientAddress)
+            '''
+            File recieved ACK - Incoming
+            '''
+            # timeout for 1 sec
+            jakeServerUDP.settimeout(1)
+
+            try:
+                ifAcked, clientAddress = jakeServerUDP.recvfrom(2048)
+                ifAcked = ifAcked.decode()
+                print(f"{chunks} From Server: {ifAcked}")
+            except:
+                # timeout error for no confirmation of data
+                print("Did not recieve ACK. Terminating. (File Upload)")
+                isTimeOut = 1
+            # reset timeout
+            jakeServerUDP.settimeout(None) 
+
+            #cleanup
+            ifAcked = ''
+            outboundChunk = ''
+            starterPoint = endPoint
+            chunks += 1
+    else:
+        print("Timeout Triggered")
+
 
 # ---
-
+    print("\n\nProcess Completed!\n\n")
     # reset isTimeout
     isTimeOut = 0
-
-
 # ---
 
-# ---
-# recieving incoming chunks:
-
-#     # Creating String to write recive from 
-#     serverNeedToCensor = ''
-
-#     # Going to recieve 
-#     currentChunkIndex = 0
-    
-
-#     # Server Side File Storage
-#     ServerSideFileName = f"{serverOriginalFileName}_"
-
-
-#     while currentChunkIndex < int(serverLoopsOfChunk):
-#         print(f"On String Section Section {currentChunkIndex}")
-#         print(f"Need to get to {int(serverLoopsOfChunk)}")
-
-#         # Recieving string in byte incriments
-#         serverNeedToCensor  = clientSocket.recv(65000)
-#         inboundString = serverNeedToCensor.decode("utf-8")
-#         print(inboundString)
-
-#         # creating ACK
-#         serverAckOutbound =  f"Chunk {currentChunkIndex} has been recieved!"
-
-
-#         if currentChunkIndex == 0:
-
-#             # Creating File
-#             # Overwrite previous file with same name (so we don't accidentally append to it)
-#             with open(f"{serverOriginalFileName}_", 'w') as f:
-#                 print(inboundString, end = '', file=f)
-
-#             print("1st statement")
-#             # cleanup
-#             inboundString = ''
-#             currentChunkIndex += 1 
-
-#             # Sending Ack
-#             clientSocket.send(serverAckOutbound.encode())    
-            
-#         else:
-
-#             #Writing to file
-#         # https://thispointer.com/how-to-append-text-or-lines-to-a-file-in-python/
-#             with open(f"{serverOriginalFileName}_", 'a') as f:
-#                 print(inboundString, end = '', file=f)
-        
-#             print("2nd Statement")
-#             # incriment
-#             currentChunkIndex += 1 
-
-#             # cleanup
-#             inboundString = ''
-
-#             # Sending Ack
-#             clientSocket.send(serverAckOutbound.encode())
-
-#      # Sending ACK
-#     clientSocket.send(serverAckOutbound.encode())
-
-#     print("Done with Recieving!")
-
-
-# # ---
