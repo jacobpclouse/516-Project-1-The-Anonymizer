@@ -17,7 +17,7 @@ UDP Draft Commands:
 
 put File1.txt
 keyword 2021 File1.txt
-get Anon_XXXX4.txt
+get Anon_File1.txt
 
 keyword 516 File4.txt
 

@@ -1,3 +1,10 @@
+# THIS USES PYTHON Python 3.8.10
+# This was inspired by https://pythonprogramming.net/sockets-tutorial-python-3/ 
+# No direct lines of code were copied, just used for inspiration
+'''
+"Without freedom of choice there is no creativity."– James Kirk
+'''
+
 # Import libraries
 import socket
 import sys
@@ -64,8 +71,9 @@ print(SocketPortNumber)
 
 
 
-# Main Logic
-# ---
+#-------------------------------------
+# Main Logic!
+#-------------------------------------
 
 jakeServerUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 jakeServerUDP.bind((SocketIP, SocketPortNumber))

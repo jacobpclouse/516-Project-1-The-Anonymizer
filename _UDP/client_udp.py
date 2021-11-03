@@ -1,3 +1,10 @@
+# THIS USES PYTHON Python 3.8.10
+# This was inspired by https://pythonprogramming.net/sockets-tutorial-python-3/ 
+# No direct lines of code were copied, just used for inspiration
+'''
+"There is a way out of every box, a solution to every puzzle; it's just a matter of finding it."– Jean-Luc Picard
+'''
+
 # Import libraries
 import socket
 import sys
