@@ -424,6 +424,41 @@ while True:
             outboundChunk = ''
             starterPoint = endPoint
             chunks += 1
+    # ----
+        '''
+        RECIEVING FIN MESSAGE
+        SEND ACK MESSAGE BACK
+        '''
+        # set timeout to 1 sec
+
+        confirmationServer2 = 'Confirmation Recipt - FIN message'
+        jakeServerUDP.settimeout(1)
+        
+        try:
+            ifAcked, clientAddress = jakeServerUDP.recvfrom(2048)
+            ifAcked = ifAcked.decode()
+            print(ifAcked)
+            
+            #sending fin recipt back
+            jakeServerUDP.sendto(confirmationServer2.encode("utf-8"), (SocketIP, SocketPortNumber))
+
+            # Recieving FIN
+            ifAcked, clientAddress = jakeServerUDP.recvfrom(2048)
+            ifAcked = ifAcked.decode()
+            print(ifAcked)
+            
+        except:
+            # timeout error for no confirmation of data
+            print("Did not recieve ACK. Terminating. (File Upload)")
+            isTimeOut = 1
+
+        
+        # reset timout 
+        jakeServerUDP.settimeout(None)
+
+        #cleanup
+        ifAcked = ''
+    
     else:
         print("Timeout Triggered")
 

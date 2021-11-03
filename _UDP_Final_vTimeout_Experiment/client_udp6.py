@@ -417,10 +417,32 @@ if isTimeOut != 1 and userCommandArray[0].lower() != 'quit':
 
         # while loop ends ----
 
-'''
-FIN MESSAGE!
-AND ACK
-'''
+    '''
+    SENDING FIN MESSAGE
+    NEED ACK MESSAGE BACK
+    '''
+    print(currentChunkIndex) # remove after
+    print (loopsOfChunk) # remove
+    if (currentChunkIndex - 1 ) == int(loopsOfChunk):
+        serverFINMessage = "Server FIN Recieved!"
+        
+        # Sending Fin message to client
+        jakeClientUDP.sendto(serverFINMessage.encode(), clientAddress)
+
+        # Set timeout for 1 sec
+        jakeClientUDP.settimeout(1)
+
+        # recieving ack back
+        try:
+            serverNeedToCensor, clientAddress = jakeClientUDP.recvfrom(2048)
+            serverNeedToCensor = serverNeedToCensor.decode()
+            print(serverNeedToCensor)
+        except:
+            print("Data transmission terminated prematurely")
+            isTimeOut = 1 # skips other timeouts if 1
+
+        # reset timeout
+        jakeClientUDP.settimeout(None)
 # ----
 # # -----------
 # # QUIT COMMAND
